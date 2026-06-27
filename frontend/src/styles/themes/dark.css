@@ -1,0 +1,41 @@
+/* Dark theme — default */
+[data-theme='dark'] {
+  --bg-primary: #0f1117;
+  --bg-secondary: #161922;
+  --bg-sidebar: #12141c;
+  --bg-statusbar: #0c0e14;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(99, 144, 255, 0.12);
+  --bg-surface: #1a1d27;
+  --bg-tooltip: #252830;
+
+  --text-primary: #e4e7ef;
+  --text-secondary: #9ca3b4;
+  --text-tertiary: #5a6178;
+
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.04);
+
+  --accent-primary: #6390ff;
+  --accent-secondary: #4ecdc4;
+
+  --status-healthy: #4ecdc4;
+  --status-warning: #ffbe0b;
+  --status-critical: #ff5e5b;
+  --status-unknown: #5a6178;
+
+  --log-error: #ff5e5b;
+  --log-warn: #ffbe0b;
+  --log-info: #6390ff;
+  --log-debug: #9ca3b4;
+
+  --chart-line-1: #6390ff;
+  --chart-line-2: #4ecdc4;
+  --chart-line-3: #ffbe0b;
+  --chart-line-4: #ff5e5b;
+  --chart-fill: rgba(99, 144, 255, 0.1);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+}

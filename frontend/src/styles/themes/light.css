@@ -1,0 +1,41 @@
+/* Light theme */
+[data-theme='light'] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fb;
+  --bg-sidebar: #f3f4f7;
+  --bg-statusbar: #ebedf2;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(59, 105, 230, 0.08);
+  --bg-surface: #ffffff;
+  --bg-tooltip: #ffffff;
+
+  --text-primary: #1a1d27;
+  --text-secondary: #5a6178;
+  --text-tertiary: #9ca3b4;
+
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.04);
+
+  --accent-primary: #3b69e6;
+  --accent-secondary: #2eab9e;
+
+  --status-healthy: #2eab9e;
+  --status-warning: #e6a200;
+  --status-critical: #e03e3b;
+  --status-unknown: #9ca3b4;
+
+  --log-error: #e03e3b;
+  --log-warn: #e6a200;
+  --log-info: #3b69e6;
+  --log-debug: #5a6178;
+
+  --chart-line-1: #3b69e6;
+  --chart-line-2: #2eab9e;
+  --chart-line-3: #e6a200;
+  --chart-line-4: #e03e3b;
+  --chart-fill: rgba(59, 105, 230, 0.08);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+}
