@@ -1,4 +1,5 @@
 mod static_files;
+pub mod rest;
 pub mod websocket;
 
 use crate::config::Config;
@@ -10,6 +11,15 @@ use tower_http::trace::TraceLayer;
 pub fn build_router(_config: &Config) -> Router {
     let api_routes = Router::new()
         .route("/api/v1/health", axum::routing::get(health_check))
+        .route("/api/v1/contexts", axum::routing::get(rest::list_contexts))
+        .route("/api/v1/contexts/{name}/connect", axum::routing::post(rest::connect_context))
+        .route("/api/v1/clusters/{id}/resources", axum::routing::get(rest::get_resources))
+        .route("/api/v1/clusters/{id}/pods/{ns}/{name}/logs", axum::routing::get(rest::get_pod_logs))
+        .route("/api/v1/clusters/{id}/metrics/{resource_type}/{ns}/{name}", axum::routing::get(rest::get_metrics))
+        .route("/api/v1/clusters/{id}/traces", axum::routing::get(rest::get_traces))
+        .route("/api/v1/clusters/{id}/traces/{trace_id}", axum::routing::get(rest::get_trace_detail))
+        .route("/api/v1/export/logs", axum::routing::post(rest::export_logs))
+        .route("/api/v1/export/metrics", axum::routing::post(rest::export_metrics))
         .route("/ws", axum::routing::get(websocket::ws_handler));
 
     Router::new()
