@@ -1,4 +1,5 @@
 mod static_files;
+pub mod websocket;
 
 use crate::config::Config;
 use axum::Router;
@@ -8,7 +9,8 @@ use tower_http::trace::TraceLayer;
 /// Build the main application router.
 pub fn build_router(_config: &Config) -> Router {
     let api_routes = Router::new()
-        .route("/api/v1/health", axum::routing::get(health_check));
+        .route("/api/v1/health", axum::routing::get(health_check))
+        .route("/ws", axum::routing::get(websocket::ws_handler));
 
     Router::new()
         .merge(api_routes)
