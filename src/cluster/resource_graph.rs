@@ -5,7 +5,7 @@
 //! diffed to produce JSON patches for connected frontends.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// Kinds of Kubernetes resources tracked in the graph.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -52,8 +52,8 @@ pub struct ResourceNode {
     pub name: String,
     pub namespace: Option<String>,
     pub status: HealthStatus,
-    pub labels: HashMap<String, String>,
-    pub annotations: HashMap<String, String>,
+    pub labels: BTreeMap<String, String>,
+    pub annotations: BTreeMap<String, String>,
     pub metrics: Option<ResourceMetrics>,
     pub parent_uid: Option<String>,
     pub age_seconds: Option<u64>,
@@ -193,8 +193,8 @@ mod tests {
             name: name.to_string(),
             namespace: Some("default".to_string()),
             status: HealthStatus::Healthy,
-            labels: HashMap::new(),
-            annotations: HashMap::new(),
+            labels: BTreeMap::new(),
+            annotations: BTreeMap::new(),
             metrics: None,
             parent_uid: parent.map(|s| s.to_string()),
             age_seconds: Some(120),
@@ -229,8 +229,8 @@ mod tests {
             name: "nginx-rs".to_string(),
             namespace: Some("default".to_string()),
             status: HealthStatus::Healthy,
-            labels: HashMap::new(),
-            annotations: HashMap::new(),
+            labels: BTreeMap::new(),
+            annotations: BTreeMap::new(),
             metrics: None,
             parent_uid: None,
             age_seconds: None,
@@ -267,8 +267,8 @@ mod tests {
             status: HealthStatus::Warning {
                 message: "high memory".to_string(),
             },
-            labels: HashMap::new(),
-            annotations: HashMap::new(),
+            labels: BTreeMap::new(),
+            annotations: BTreeMap::new(),
             metrics: None,
             parent_uid: None,
             age_seconds: None,
