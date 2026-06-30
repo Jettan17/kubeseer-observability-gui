@@ -52,11 +52,14 @@ pub enum ServerMessage {
     },
 }
 
+/// Type alias for the async snapshot function.
+type SnapshotFn = Arc<dyn Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = Vec<crate::cluster::resource_graph::ResourceNode>> + Send>> + Send + Sync>;
+
 /// Shared state for WebSocket connections.
 #[derive(Clone)]
 pub struct WsState {
     pub patch_rx_factory: Arc<dyn Fn() -> broadcast::Receiver<crate::cluster::resource_graph::GraphPatch> + Send + Sync>,
-    pub snapshot_fn: Arc<dyn Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = Vec<crate::cluster::resource_graph::ResourceNode>> + Send>> + Send + Sync>,
+    pub snapshot_fn: SnapshotFn,
 }
 
 /// Handle WebSocket upgrade requests.

@@ -74,12 +74,10 @@ impl Config {
         }
 
         // If TLS is enabled, cert and key must be provided
-        if self.tls {
-            if self.tls_cert.is_none() || self.tls_key.is_none() {
-                anyhow::bail!(
-                    "Both --tls-cert and --tls-key are required when TLS is enabled."
-                );
-            }
+        if self.tls && (self.tls_cert.is_none() || self.tls_key.is_none()) {
+            anyhow::bail!(
+                "Both --tls-cert and --tls-key are required when TLS is enabled."
+            );
         }
 
         Ok(self)

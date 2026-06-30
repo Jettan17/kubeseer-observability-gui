@@ -23,6 +23,12 @@ pub struct ResourceWatcher {
     patch_tx: broadcast::Sender<GraphPatch>,
 }
 
+impl Default for ResourceWatcher {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ResourceWatcher {
     pub fn new() -> Self {
         let (patch_tx, _) = broadcast::channel(BROADCAST_CAPACITY);
@@ -264,7 +270,7 @@ fn pod_to_resource_node(pod: &Pod) -> Option<ResourceNode> {
         .owner_references
         .as_ref()
         .and_then(|refs| refs.first())
-        .and_then(|r| Some(r.uid.clone()));
+        .map(|r| r.uid.clone());
 
     Some(ResourceNode {
         uid: uid.clone(),
