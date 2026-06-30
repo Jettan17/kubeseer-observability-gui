@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { StatusBar } from './components/layout/StatusBar';
 import { TopologyView } from './components/topology/TopologyView';
@@ -24,6 +24,7 @@ function App() {
   useTheme();
   const activeView = useUIStore((s) => s.activeView);
   const resources = useClusterStore((s) => s.resources);
+  const activeContext = useClusterStore((s) => s.activeContext);
   const [traces, setTraces] = useState<Trace[]>([]);
 
   // Topology filter state
@@ -33,40 +34,65 @@ function App() {
     search?: string;
   }>({});
 
-  // Load mock data on mount
-  useEffect(() => {
+  // Load initial cluster data
+  const loadClusterData = useCallback((clusterName: string) => {
     const clusterStore = useClusterStore.getState();
     const logStore = useLogStore.getState();
     const metricsStore = useMetricsStore.getState();
 
-    // Set up cluster
+    // Clear previous data
+    clusterStore.clearResources();
+    logStore.clear();
+    metricsStore.clearSeries();
+
+    // Simulate brief connection
+    clusterStore.setConnectionStatus('connecting');
+
+    // Load new data immediately (Rust backend would be this fast)
+    requestAnimationFrame(() => {
+      clusterStore.setConnectionStatus('connected');
+
+      // Load resources for this cluster
+      const mockResources = generateMockResources();
+      // Tag resources with the active cluster
+      for (const r of mockResources) {
+        r.clusterId = clusterName;
+        clusterStore.upsertResource(r);
+      }
+
+      // Load logs (pre-generated, instant)
+      logStore.appendLines(generateMockLogs(500));
+
+      // Load metrics
+      metricsStore.setSeries(clusterName, generateMockMetrics());
+
+      // Load traces
+      setTraces(generateMockTraces());
+    });
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    const clusterStore = useClusterStore.getState();
     clusterStore.setContexts(generateMockContexts());
     clusterStore.setActiveContext('prod-us-east-1');
-    clusterStore.setConnectionStatus('connected');
-
-    // Load resources
-    const mockResources = generateMockResources();
-    for (const r of mockResources) {
-      clusterStore.upsertResource(r);
-    }
-
-    // Load logs
-    logStore.appendLines(generateMockLogs(500));
-
-    // Load metrics
-    metricsStore.setSeries('overview', generateMockMetrics());
-
-    // Load traces
-    setTraces(generateMockTraces());
+    loadClusterData('prod-us-east-1');
 
     // Simulate live log streaming
     const logInterval = setInterval(() => {
-      const newLogs = generateMockLogs(3);
-      logStore.appendLines(newLogs);
-    }, 2000);
+      const logStore = useLogStore.getState();
+      logStore.appendLines(generateMockLogs(2));
+    }, 2500);
 
     return () => clearInterval(logInterval);
-  }, []);
+  }, [loadClusterData]);
+
+  // React to cluster switches
+  useEffect(() => {
+    if (activeContext) {
+      loadClusterData(activeContext);
+    }
+  }, [activeContext, loadClusterData]);
 
   // Compute health summary from resources
   const healthSummary = computeHealthSummary(resources);
@@ -106,7 +132,7 @@ function App() {
             </>
           )}
           {activeView === 'logs' && <LogViewer />}
-          {activeView === 'metrics' && <MetricsDashboard resourceUid="overview" />}
+          {activeView === 'metrics' && <MetricsDashboard resourceUid={activeContext || 'overview'} />}
           {activeView === 'traces' && <TraceExplorer traces={traces} />}
         </div>
       </main>

@@ -1,9 +1,9 @@
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useLogStore, LogLine } from '../../stores/logs';
 import { LogSearch } from './LogSearch';
 
-const LINE_HEIGHT = 20;
-const OVERSCAN = 20;
+const LINE_HEIGHT = 22;
+const OVERSCAN = 30;
 
 export function LogViewer() {
   const lines = useLogStore((s) => s.lines);
@@ -13,9 +13,10 @@ export function LogViewer() {
   const setPinned = useLogStore((s) => s.setPinned);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollTopRef = useRef(0);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(600);
 
-  // Filter lines by level
+  // Filter lines by level and search — memoized to avoid re-computation
   const filteredLines = useMemo(() => {
     return lines.filter((line) => {
       if (line.level && !levelFilter.has(line.level)) return false;
@@ -28,7 +29,19 @@ export function LogViewer() {
 
   const totalHeight = filteredLines.length * LINE_HEIGHT;
 
-  // Auto-scroll to bottom when pinned
+  // Measure container height on mount and resize
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      setContainerHeight(el.clientHeight);
+    });
+    observer.observe(el);
+    setContainerHeight(el.clientHeight);
+    return () => observer.disconnect();
+  }, []);
+
+  // Auto-scroll to bottom when pinned and new lines arrive
   useEffect(() => {
     if (isPinned && containerRef.current) {
       containerRef.current.scrollTop = totalHeight;
@@ -38,10 +51,10 @@ export function LogViewer() {
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    scrollTopRef.current = el.scrollTop;
+    setScrollTop(el.scrollTop);
 
-    // Unpin if user scrolls up
-    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - LINE_HEIGHT * 2;
+    // Unpin if user scrolls up, re-pin if at bottom
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - LINE_HEIGHT * 3;
     if (!atBottom && isPinned) {
       setPinned(false);
     } else if (atBottom && !isPinned) {
@@ -50,11 +63,10 @@ export function LogViewer() {
   }, [isPinned, setPinned]);
 
   // Calculate visible window
-  const containerHeight = containerRef.current?.clientHeight || 600;
-  const startIdx = Math.max(0, Math.floor(scrollTopRef.current / LINE_HEIGHT) - OVERSCAN);
+  const startIdx = Math.max(0, Math.floor(scrollTop / LINE_HEIGHT) - OVERSCAN);
   const endIdx = Math.min(
     filteredLines.length,
-    Math.ceil((scrollTopRef.current + containerHeight) / LINE_HEIGHT) + OVERSCAN
+    Math.ceil((scrollTop + containerHeight) / LINE_HEIGHT) + OVERSCAN
   );
   const visibleLines = filteredLines.slice(startIdx, endIdx);
   const offsetY = startIdx * LINE_HEIGHT;
@@ -66,13 +78,18 @@ export function LogViewer() {
         ref={containerRef}
         className="log-viewer__scroll"
         onScroll={handleScroll}
-        style={{ height: '100%', overflow: 'auto' }}
         role="log"
         aria-label="Application logs"
-        aria-live="polite"
       >
         <div style={{ height: totalHeight, position: 'relative' }}>
-          <div style={{ transform: `translateY(${offsetY}px)`, position: 'absolute', width: '100%' }}>
+          <div
+            style={{
+              transform: `translateY(${offsetY}px)`,
+              position: 'absolute',
+              width: '100%',
+              willChange: 'transform',
+            }}
+          >
             {visibleLines.map((line, i) => (
               <LogLineRow key={startIdx + i} line={line} highlight={searchQuery} />
             ))}
@@ -82,7 +99,12 @@ export function LogViewer() {
       {!isPinned && (
         <button
           className="log-viewer__scroll-btn"
-          onClick={() => setPinned(true)}
+          onClick={() => {
+            setPinned(true);
+            if (containerRef.current) {
+              containerRef.current.scrollTop = totalHeight;
+            }
+          }}
           aria-label="Scroll to latest"
         >
           ↓ Latest
