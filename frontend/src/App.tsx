@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { StatusBar } from './components/layout/StatusBar';
 import { TopologyView } from './components/topology/TopologyView';
@@ -9,12 +9,22 @@ import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
 import { ClusterSelector, SearchBar, HealthBar } from './components/common';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
+import { useLogStore } from './stores/logs';
+import { useMetricsStore } from './stores/metrics';
 import { useTheme } from './hooks/useTheme';
+import {
+  generateMockContexts,
+  generateMockResources,
+  generateMockLogs,
+  generateMockMetrics,
+  generateMockTraces,
+} from './lib/mock-data';
 
 function App() {
   useTheme();
   const activeView = useUIStore((s) => s.activeView);
   const resources = useClusterStore((s) => s.resources);
+  const [traces, setTraces] = useState<Trace[]>([]);
 
   // Topology filter state
   const [topoFilters, setTopoFilters] = useState<{
@@ -22,6 +32,41 @@ function App() {
     status?: string;
     search?: string;
   }>({});
+
+  // Load mock data on mount
+  useEffect(() => {
+    const clusterStore = useClusterStore.getState();
+    const logStore = useLogStore.getState();
+    const metricsStore = useMetricsStore.getState();
+
+    // Set up cluster
+    clusterStore.setContexts(generateMockContexts());
+    clusterStore.setActiveContext('prod-us-east-1');
+    clusterStore.setConnectionStatus('connected');
+
+    // Load resources
+    const mockResources = generateMockResources();
+    for (const r of mockResources) {
+      clusterStore.upsertResource(r);
+    }
+
+    // Load logs
+    logStore.appendLines(generateMockLogs(500));
+
+    // Load metrics
+    metricsStore.setSeries('overview', generateMockMetrics());
+
+    // Load traces
+    setTraces(generateMockTraces());
+
+    // Simulate live log streaming
+    const logInterval = setInterval(() => {
+      const newLogs = generateMockLogs(3);
+      logStore.appendLines(newLogs);
+    }, 2000);
+
+    return () => clearInterval(logInterval);
+  }, []);
 
   // Compute health summary from resources
   const healthSummary = computeHealthSummary(resources);
@@ -34,9 +79,6 @@ function App() {
         .filter(Boolean) as string[]
     )
   );
-
-  // Placeholder traces (will come from backend in future)
-  const traces: Trace[] = [];
 
   return (
     <div className="app-shell">
@@ -64,7 +106,7 @@ function App() {
             </>
           )}
           {activeView === 'logs' && <LogViewer />}
-          {activeView === 'metrics' && <MetricsDashboard />}
+          {activeView === 'metrics' && <MetricsDashboard resourceUid="overview" />}
           {activeView === 'traces' && <TraceExplorer traces={traces} />}
         </div>
       </main>

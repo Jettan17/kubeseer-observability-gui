@@ -1,41 +1,78 @@
-/* Dark theme — default */
+/* Dark theme — premium glassmorphic design */
 [data-theme='dark'] {
-  --bg-primary: #0f1117;
-  --bg-secondary: #161922;
-  --bg-sidebar: #12141c;
-  --bg-statusbar: #0c0e14;
-  --bg-hover: rgba(255, 255, 255, 0.06);
-  --bg-active: rgba(99, 144, 255, 0.12);
-  --bg-surface: #1a1d27;
-  --bg-tooltip: #252830;
+  /* Backgrounds */
+  --bg-primary: #08090d;
+  --bg-secondary: #0e1018;
+  --bg-sidebar: #0b0c13;
+  --bg-statusbar: #08090d;
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(109, 156, 255, 0.08);
+  --bg-surface: #12141e;
+  --bg-surface-raised: #181b26;
+  --bg-tooltip: rgba(22, 25, 36, 0.95);
+  --bg-glass: rgba(14, 16, 24, 0.7);
+  --bg-input: rgba(255, 255, 255, 0.03);
 
-  --text-primary: #e4e7ef;
-  --text-secondary: #9ca3b4;
-  --text-tertiary: #5a6178;
+  /* Text */
+  --text-primary: #f0f2f8;
+  --text-secondary: #8b93a7;
+  --text-tertiary: #4e5567;
+  --text-inverse: #08090d;
 
-  --border-primary: rgba(255, 255, 255, 0.08);
-  --border-secondary: rgba(255, 255, 255, 0.04);
+  /* Borders */
+  --border-primary: rgba(255, 255, 255, 0.06);
+  --border-secondary: rgba(255, 255, 255, 0.03);
+  --border-accent: rgba(109, 156, 255, 0.3);
 
-  --accent-primary: #6390ff;
-  --accent-secondary: #4ecdc4;
+  /* Accent */
+  --accent-primary: #6d9cff;
+  --accent-primary-dim: rgba(109, 156, 255, 0.15);
+  --accent-secondary: #5eecd5;
+  --accent-secondary-dim: rgba(94, 236, 213, 0.12);
+  --accent-gradient: linear-gradient(135deg, #6d9cff 0%, #5eecd5 100%);
 
-  --status-healthy: #4ecdc4;
-  --status-warning: #ffbe0b;
-  --status-critical: #ff5e5b;
-  --status-unknown: #5a6178;
+  /* Status */
+  --status-healthy: #5eecd5;
+  --status-healthy-dim: rgba(94, 236, 213, 0.12);
+  --status-warning: #ffc145;
+  --status-warning-dim: rgba(255, 193, 69, 0.12);
+  --status-critical: #ff6b6b;
+  --status-critical-dim: rgba(255, 107, 107, 0.12);
+  --status-unknown: #4e5567;
 
-  --log-error: #ff5e5b;
-  --log-warn: #ffbe0b;
-  --log-info: #6390ff;
-  --log-debug: #9ca3b4;
+  /* Log levels */
+  --log-error: #ff6b6b;
+  --log-warn: #ffc145;
+  --log-info: #6d9cff;
+  --log-debug: #8b93a7;
 
-  --chart-line-1: #6390ff;
-  --chart-line-2: #4ecdc4;
-  --chart-line-3: #ffbe0b;
-  --chart-line-4: #ff5e5b;
-  --chart-fill: rgba(99, 144, 255, 0.1);
+  /* Charts */
+  --chart-line-1: #6d9cff;
+  --chart-line-2: #5eecd5;
+  --chart-line-3: #ffc145;
+  --chart-line-4: #ff6b6b;
+  --chart-fill: rgba(109, 156, 255, 0.06);
+  --chart-grid: rgba(255, 255, 255, 0.04);
 
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(109, 156, 255, 0.15);
+
+  /* Scrollbar */
   --scrollbar-track: transparent;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Transitions */
+  --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
