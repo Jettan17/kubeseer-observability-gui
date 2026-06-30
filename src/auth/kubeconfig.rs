@@ -5,7 +5,6 @@
 
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 /// A parsed kubeconfig representation (simplified).

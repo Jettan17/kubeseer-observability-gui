@@ -4,16 +4,12 @@
 //! resource graph patches to connected clients.
 
 use axum::{
-    extract::{
-        ws::{Message, WebSocket, WebSocketUpgrade},
-        State,
-    },
+    extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::Response,
 };
-use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::broadcast;
 
 /// Client → Server messages.
 #[derive(Debug, Clone, Deserialize)]

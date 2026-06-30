@@ -1,11 +1,4 @@
-mod api;
-mod auth;
-mod cluster;
-mod config;
-mod plugins;
-mod query;
-
-use crate::config::Config;
+use kubeobserve::config::Config;
 use anyhow::Result;
 use tracing_subscriber::EnvFilter;
 
@@ -26,7 +19,7 @@ async fn main() -> Result<()> {
     tracing::info!("Binding to {}:{}", config.host, config.port);
 
     // Build the Axum application
-    let app = api::build_router(&config);
+    let app = kubeobserve::api::build_router(&config);
 
     // Bind the listener
     let addr = std::net::SocketAddr::new(config.host, config.port);
