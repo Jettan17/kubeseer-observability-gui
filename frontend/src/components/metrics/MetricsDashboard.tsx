@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { useMetricsStore, TimeWindow, TimeSeriesPoint } from '../../stores/metrics';
+import { useMemo } from 'react';
+import { useMetricsStore, TimeWindow } from '../../stores/metrics';
 import { TimeSeriesChart } from './TimeSeriesChart';
 import { ResourceGauge } from './ResourceGauge';
+import { getMetricsForWindow } from '../../lib/mock-metrics-store';
 
 interface MetricsDashboardProps {
   resourceUid?: string;
@@ -15,41 +16,17 @@ const TIME_WINDOWS: { value: TimeWindow; label: string }[] = [
   { value: '7d', label: '7 days' },
 ];
 
-const WINDOW_SECONDS: Record<TimeWindow, number> = {
-  '5m': 300,
-  '1h': 3600,
-  '6h': 21600,
-  '24h': 86400,
-  '7d': 604800,
-};
-
-function generatePointsForWindow(window: TimeWindow, base: number, variance: number): TimeSeriesPoint[] {
-  const seconds = WINDOW_SECONDS[window];
-  const interval = Math.max(15, seconds / 120); // ~120 points regardless of window
-  const count = Math.floor(seconds / interval);
-  const now = Date.now();
-  return Array.from({ length: count }, (_, i) => ({
-    timestamp: now - (count - i) * interval * 1000,
-    value: Math.max(0, base + Math.sin(i / 8) * variance + (Math.random() - 0.5) * variance * 0.6),
-  }));
-}
+const CHART_COLORS = ['#6d9cff', '#5eecd5', '#ffc145', '#ff6b6b'];
 
 export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
   const timeWindow = useMetricsStore((s) => s.timeWindow);
   const setTimeWindow = useMetricsStore((s) => s.setTimeWindow);
-  const series = useMetricsStore((s) => (resourceUid ? s.series[resourceUid] : undefined));
-  const setSeries = useMetricsStore((s) => s.setSeries);
 
-  // Regenerate data when time window changes
-  useEffect(() => {
-    if (!resourceUid) return;
-    setSeries(resourceUid, [
-      { name: 'CPU Usage', unit: 'millicores', points: generatePointsForWindow(timeWindow, 350, 150) },
-      { name: 'Memory Usage', unit: 'MiB', points: generatePointsForWindow(timeWindow, 380, 50) },
-      { name: 'Network RX', unit: 'KB/s', points: generatePointsForWindow(timeWindow, 200, 80) },
-      { name: 'Network TX', unit: 'KB/s', points: generatePointsForWindow(timeWindow, 150, 60) },
-    ]);
-  }, [timeWindow, resourceUid, setSeries]);
+  // Get stable metrics data — sliced from pre-generated 7-day dataset
+  const series = useMemo(() => {
+    if (!resourceUid) return [];
+    return getMetricsForWindow(resourceUid, timeWindow);
+  }, [resourceUid, timeWindow]);
 
   return (
     <div className="metrics-dashboard">
@@ -68,33 +45,30 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
         </div>
       </div>
 
-      {!series || series.length === 0 ? (
+      {series.length === 0 ? (
         <div className="metrics-dashboard__empty">
           <p>Select a resource to view metrics</p>
         </div>
       ) : (
         <div className="metrics-dashboard__grid">
-          {series.map((s, i) => {
-            const colors = ['#6d9cff', '#5eecd5', '#ffc145', '#ff6b6b'];
-            return (
-              <div key={s.name} className="metrics-dashboard__card">
-                <h3 className="metrics-dashboard__card-title">{s.name}</h3>
-                <TimeSeriesChart
-                  points={s.points}
+          {series.map((s, i) => (
+            <div key={s.name} className="metrics-dashboard__card">
+              <h3 className="metrics-dashboard__card-title">{s.name}</h3>
+              <TimeSeriesChart
+                points={s.points}
+                unit={s.unit}
+                thresholdPercent={80}
+                color={CHART_COLORS[i % CHART_COLORS.length]}
+              />
+              {s.points.length > 0 && (
+                <ResourceGauge
+                  current={s.points[s.points.length - 1].value}
+                  label={s.name}
                   unit={s.unit}
-                  thresholdPercent={80}
-                  color={colors[i % colors.length]}
                 />
-                {s.points.length > 0 && (
-                  <ResourceGauge
-                    current={s.points[s.points.length - 1].value}
-                    label={s.name}
-                    unit={s.unit}
-                  />
-                )}
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
