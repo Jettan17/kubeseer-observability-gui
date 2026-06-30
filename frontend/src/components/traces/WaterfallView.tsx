@@ -79,7 +79,7 @@ function SpanDetail({ span, onClose }: SpanDetailProps) {
     <div className="span-detail" role="dialog" aria-label="Span details">
       <div className="span-detail__header">
         <h3>{span.service} — {span.operation}</h3>
-        <button onClick={onClose} aria-label="Close span details">✕</button>
+        <button className="span-detail__close" onClick={onClose} aria-label="Close span details">✕</button>
       </div>
       <div className="span-detail__body">
         <dl>

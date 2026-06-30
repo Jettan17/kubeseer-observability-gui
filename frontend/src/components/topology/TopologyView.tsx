@@ -160,6 +160,8 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const animFrameRef = useRef<number>(0);
   const dprRef = useRef(window.devicePixelRatio || 1);
+  const isDraggingRef = useRef(false);
+  const lastMouseRef = useRef({ x: 0, y: 0 });
 
   // Convert resources to layout nodes and compute layout
   useEffect(() => {
@@ -273,6 +275,15 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
   // Hit testing for hover
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
+      // Handle panning
+      if (isDraggingRef.current) {
+        const dx = e.clientX - lastMouseRef.current.x;
+        const dy = e.clientY - lastMouseRef.current.y;
+        lastMouseRef.current = { x: e.clientX, y: e.clientY };
+        setTransform((t) => ({ ...t, x: t.x + dx, y: t.y + dy }));
+        return;
+      }
+
       const { x, y } = getLogicalCoords(e);
 
       const hit = layoutNodes.find((node) => {
@@ -292,6 +303,15 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
     },
     [layoutNodes, getLogicalCoords]
   );
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    isDraggingRef.current = true;
+    lastMouseRef.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isDraggingRef.current = false;
+  }, []);
 
   // Click handling
   const handleClick = useCallback(
@@ -330,6 +350,9 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
         ref={canvasRef}
         style={{ width: '100%', height: '100%', display: 'block' }}
         onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
         onClick={handleClick}
         onWheel={handleWheel}
       />

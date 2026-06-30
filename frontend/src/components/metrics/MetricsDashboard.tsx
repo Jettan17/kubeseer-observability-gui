@@ -74,23 +74,27 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
         </div>
       ) : (
         <div className="metrics-dashboard__grid">
-          {series.map((s) => (
-            <div key={s.name} className="metrics-dashboard__card">
-              <h3 className="metrics-dashboard__card-title">{s.name}</h3>
-              <TimeSeriesChart
-                points={s.points}
-                unit={s.unit}
-                thresholdPercent={80}
-              />
-              {s.points.length > 0 && (
-                <ResourceGauge
-                  current={s.points[s.points.length - 1].value}
-                  label={s.name}
+          {series.map((s, i) => {
+            const colors = ['#6d9cff', '#5eecd5', '#ffc145', '#ff6b6b'];
+            return (
+              <div key={s.name} className="metrics-dashboard__card">
+                <h3 className="metrics-dashboard__card-title">{s.name}</h3>
+                <TimeSeriesChart
+                  points={s.points}
                   unit={s.unit}
+                  thresholdPercent={80}
+                  color={colors[i % colors.length]}
                 />
-              )}
-            </div>
-          ))}
+                {s.points.length > 0 && (
+                  <ResourceGauge
+                    current={s.points[s.points.length - 1].value}
+                    label={s.name}
+                    unit={s.unit}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
