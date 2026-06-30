@@ -103,10 +103,40 @@ export function TraceExplorer({ traces, onTraceSelect }: TraceExplorerProps) {
 
         {selectedTrace && (
           <div className="trace-explorer__detail">
-            <WaterfallView traceId={selectedTrace} spans={[]} />
+            <WaterfallView traceId={selectedTrace} spans={generateMockSpans(selectedTrace, filteredTraces)} />
           </div>
         )}
       </div>
     </div>
   );
+}
+
+/** Generate mock spans for a selected trace */
+function generateMockSpans(traceId: string, traces: Trace[]): Span[] {
+  const trace = traces.find((t) => t.traceId === traceId);
+  if (!trace) return [];
+
+  const services = ['api-gateway', 'auth-service', 'user-service', 'db-proxy', 'cache', 'payment-service'];
+  const operations = ['handleRequest', 'authenticate', 'getUser', 'query', 'lookup', 'processPayment', 'validate', 'serialize'];
+  const spanCount = trace.spanCount;
+  const spans: Span[] = [];
+
+  let currentTime = 0;
+  for (let i = 0; i < spanCount; i++) {
+    const duration = 5 + Math.random() * (trace.duration / spanCount) * 2;
+    spans.push({
+      spanId: `span-${traceId}-${i}`,
+      parentSpanId: i > 0 ? `span-${traceId}-${Math.floor(Math.random() * i)}` : undefined,
+      service: services[i % services.length],
+      operation: operations[i % operations.length],
+      duration,
+      startTime: currentTime,
+      attributes: { 'http.method': 'GET', 'http.status_code': i === spanCount - 1 && trace.status === 'error' ? '500' : '200' },
+      events: [],
+      status: i === spanCount - 1 && trace.status === 'error' ? 'error' : 'ok',
+    });
+    currentTime += duration * 0.3;
+  }
+
+  return spans;
 }
