@@ -61,6 +61,32 @@ export function computeLayout(
       node.radius = KIND_RADIUS[node.kind] || 14;
     });
 
+    // Custom namespace clustering force — pulls same-namespace nodes together
+    function namespaceForce(alpha: number) {
+      const namespaceCenters = new Map<string, { x: number; y: number; count: number }>();
+
+      // Compute namespace centers
+      for (const node of nodes) {
+        if (!node.namespace || node.x == null || node.y == null) continue;
+        const center = namespaceCenters.get(node.namespace) || { x: 0, y: 0, count: 0 };
+        center.x += node.x;
+        center.y += node.y;
+        center.count++;
+        namespaceCenters.set(node.namespace, center);
+      }
+
+      // Pull nodes toward their namespace center
+      for (const node of nodes) {
+        if (!node.namespace || node.x == null || node.y == null) continue;
+        const center = namespaceCenters.get(node.namespace);
+        if (!center || center.count < 2) continue;
+        const cx = center.x / center.count;
+        const cy = center.y / center.count;
+        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.1;
+        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.1;
+      }
+    }
+
     const simulation = forceSimulation(nodes)
       .force(
         'link',
@@ -86,6 +112,7 @@ export function computeLayout(
           .radius((d) => d.radius + 4)
           .strength(0.8)
       )
+      .force('namespace', () => namespaceForce(simulation.alpha()))
       .alphaDecay(0.02)
       .velocityDecay(0.4);
 

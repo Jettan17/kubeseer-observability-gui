@@ -46,13 +46,13 @@ const KIND_COLORS: Record<string, string> = {
   Container: '#67e8f9',
 };
 
-// Shape drawing per kind
+// Shape drawing per kind — premium glassmorphic style
 function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: boolean) {
   const x = node.x!;
   const y = node.y!;
   const r = node.radius;
 
-  // Determine color: use status color for pods, kind color for others
+  // Determine color
   let fillColor: string;
   if (node.kind === 'Pod') {
     fillColor = STATUS_COLORS[node.status] || STATUS_COLORS.unknown;
@@ -62,21 +62,18 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: bo
 
   ctx.save();
 
-  // Glow for hovered or critical
-  if (isHovered || node.status === 'critical') {
-    ctx.shadowColor = fillColor;
-    ctx.shadowBlur = isHovered ? 16 : 8;
-  }
+  // Outer glow (always on, stronger when hovered)
+  ctx.shadowColor = fillColor;
+  ctx.shadowBlur = isHovered ? 20 : 8;
+  ctx.globalAlpha = isHovered ? 1 : 0.9;
 
   ctx.beginPath();
 
   switch (node.kind) {
     case 'Node':
-      // Rounded square
-      roundedRect(ctx, x - r, y - r, r * 2, r * 2, 5);
+      roundedRect(ctx, x - r, y - r, r * 2, r * 2, 6);
       break;
     case 'Service':
-      // Diamond
       ctx.moveTo(x, y - r);
       ctx.lineTo(x + r, y);
       ctx.lineTo(x, y + r);
@@ -86,7 +83,6 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: bo
     case 'Deployment':
     case 'StatefulSet':
     case 'DaemonSet':
-      // Hexagon
       for (let i = 0; i < 6; i++) {
         const angle = (Math.PI / 3) * i - Math.PI / 6;
         const px = x + r * Math.cos(angle);
@@ -97,35 +93,61 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: bo
       ctx.closePath();
       break;
     default:
-      // Circle for Pods and everything else
       ctx.arc(x, y, r, 0, Math.PI * 2);
       break;
   }
 
-  ctx.fillStyle = fillColor;
-  ctx.globalAlpha = isHovered ? 1 : 0.85;
+  // Radial gradient fill (3D sphere effect)
+  const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r * 1.2);
+  grad.addColorStop(0, lightenColor(fillColor, 40));
+  grad.addColorStop(0.6, fillColor);
+  grad.addColorStop(1, darkenColor(fillColor, 30));
+  ctx.fillStyle = grad;
   ctx.fill();
 
-  // Border
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  // Subtle inner border
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = `rgba(255,255,255,${isHovered ? 0.4 : 0.15})`;
   ctx.lineWidth = isHovered ? 2 : 1;
   ctx.stroke();
 
-  // Label (kind icon or first letter)
+  // Kind letter
+  ctx.globalAlpha = 1;
   ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.max(8, r * 0.7)}px Inter, sans-serif`;
+  ctx.font = `bold ${Math.max(9, r * 0.65)}px Inter, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const label = node.kind === 'Pod' ? 'P' : node.kind === 'Service' ? 'S' : node.kind === 'Deployment' ? 'D' : node.kind === 'Node' ? 'N' : node.kind[0];
   ctx.fillText(label, x, y);
 
-  // Name below
+  // Name below (with background pill for readability)
+  const name = truncate(node.name, 12);
   ctx.font = '10px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText(truncate(node.name, 14), x, y + r + 12);
+  const textWidth = ctx.measureText(name).width;
+  ctx.fillStyle = 'rgba(6, 7, 11, 0.7)';
+  ctx.beginPath();
+  ctx.roundRect(x - textWidth / 2 - 4, y + r + 5, textWidth + 8, 14, 4);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.fillText(name, x, y + r + 12);
 
   ctx.restore();
+}
+
+function lightenColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.min(255, (num >> 16) + percent);
+  const g = Math.min(255, ((num >> 8) & 0x00FF) + percent);
+  const b = Math.min(255, (num & 0x0000FF) + percent);
+  return `rgb(${r},${g},${b})`;
+}
+
+function darkenColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, (num >> 16) - percent);
+  const g = Math.max(0, ((num >> 8) & 0x00FF) - percent);
+  const b = Math.max(0, (num & 0x0000FF) - percent);
+  return `rgb(${r},${g},${b})`;
 }
 
 function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -221,13 +243,13 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
         transform.y * dpr
       );
 
-      // Draw namespace swimlanes (background regions)
+      // Draw namespace swimlanes as soft gradient blobs
       const namespaceGroups = new Map<string, { minX: number; minY: number; maxX: number; maxY: number }>();
       for (const node of layoutNodes) {
         if (node.x == null || node.y == null || !node.namespace) continue;
         const ns = node.namespace;
         const existing = namespaceGroups.get(ns);
-        const pad = node.radius + 20;
+        const pad = node.radius + 30;
         if (existing) {
           existing.minX = Math.min(existing.minX, node.x - pad);
           existing.minY = Math.min(existing.minY, node.y - pad);
@@ -243,56 +265,64 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
         }
       }
 
-      const nsColors = ['rgba(109,156,255,0.04)', 'rgba(94,236,213,0.04)', 'rgba(255,193,69,0.04)', 'rgba(167,139,250,0.04)'];
-      const nsBorderColors = ['rgba(109,156,255,0.15)', 'rgba(94,236,213,0.15)', 'rgba(255,193,69,0.15)', 'rgba(167,139,250,0.15)'];
+      const nsColors = [
+        { fill: 'rgba(109,156,255,0.03)', border: 'rgba(109,156,255,0.12)', text: 'rgba(109,156,255,0.5)' },
+        { fill: 'rgba(94,236,213,0.03)', border: 'rgba(94,236,213,0.12)', text: 'rgba(94,236,213,0.5)' },
+        { fill: 'rgba(255,185,56,0.03)', border: 'rgba(255,185,56,0.12)', text: 'rgba(255,185,56,0.5)' },
+        { fill: 'rgba(167,139,250,0.03)', border: 'rgba(167,139,250,0.12)', text: 'rgba(167,139,250,0.5)' },
+      ];
       let nsIdx = 0;
       for (const [ns, bounds] of namespaceGroups) {
-        const padding = 16;
+        const colors = nsColors[nsIdx % nsColors.length];
+        const padding = 20;
         const x = bounds.minX - padding;
         const y = bounds.minY - padding;
         const w2 = bounds.maxX - bounds.minX + padding * 2;
         const h2 = bounds.maxY - bounds.minY + padding * 2;
+        const cornerRadius = 16;
 
-        // Background
-        ctx.fillStyle = nsColors[nsIdx % nsColors.length];
+        // Soft filled background
+        ctx.fillStyle = colors.fill;
         ctx.beginPath();
-        ctx.roundRect(x, y, w2, h2, 12);
+        ctx.roundRect(x, y, w2, h2, cornerRadius);
         ctx.fill();
 
-        // Border
-        ctx.strokeStyle = nsBorderColors[nsIdx % nsBorderColors.length];
+        // Dashed border
+        ctx.strokeStyle = colors.border;
         ctx.lineWidth = 1;
+        ctx.setLineDash([6, 4]);
         ctx.stroke();
+        ctx.setLineDash([]);
 
         // Namespace label
-        ctx.fillStyle = nsBorderColors[nsIdx % nsBorderColors.length].replace('0.15', '0.6');
-        ctx.font = '11px Inter, sans-serif';
+        ctx.fillStyle = colors.text;
+        ctx.font = '600 10px Inter, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
-        ctx.fillText(ns, x + 8, y + 6);
+        ctx.fillText(ns.toUpperCase(), x + 10, y + 8);
 
         nsIdx++;
       }
 
-      // Draw links
+      // Draw links as subtle curved lines
       for (const link of layoutLinks) {
         const source = link.source as LayoutNode;
         const target = link.target as LayoutNode;
         if (source.x == null || source.y == null || target.x == null || target.y == null) continue;
 
         ctx.beginPath();
+        // Bezier curve for organic feel
+        const midX = (source.x + target.x) / 2;
+        const midY = (source.y + target.y) / 2;
+        const offset = (target.y - source.y) * 0.15;
         ctx.moveTo(source.x, source.y);
-        ctx.lineTo(target.x, target.y);
-        ctx.strokeStyle = 'rgba(109, 156, 255, 0.2)';
+        ctx.quadraticCurveTo(midX + offset, midY - offset, target.x, target.y);
+
+        ctx.strokeStyle = link.type === 'network'
+          ? 'rgba(255, 185, 56, 0.2)'
+          : 'rgba(109, 156, 255, 0.15)';
         ctx.lineWidth = 1.5;
-        if (link.type === 'network') {
-          ctx.setLineDash([6, 4]);
-          ctx.strokeStyle = 'rgba(255, 193, 69, 0.25)';
-        } else {
-          ctx.setLineDash([]);
-        }
         ctx.stroke();
-        ctx.setLineDash([]);
       }
 
       // Draw nodes

@@ -11,6 +11,7 @@ import { ClusterSelector, CommandPalette, ToastContainer, emitToast, HealthBar }
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { AssistantPanel } from './components/common/AssistantPanel';
+import { AccountMenu } from './components/common/AccountMenu';
 import { useUIStore } from './stores/ui';
 import { useClusterStore, ResourceNode } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -32,6 +33,7 @@ function App() {
   const [traces, setTraces] = useState<Trace[]>([]);
   const [selectedResource, setSelectedResource] = useState<ResourceNode | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const prevContextRef = useRef<string | null>(null);
 
   // Topology filter state
@@ -165,13 +167,14 @@ function App() {
             <kbd className="header-troubleshoot__kbd">T</kbd>
           </div>
           <div className="header-account">
-            <button className="header-account__btn" title="Account settings">
+            <button className="header-account__btn" onClick={() => setAccountOpen(!accountOpen)} title="Account settings">
               <div className="header-account__avatar">JD</div>
               <span className="header-account__name">Jethro</span>
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
                 <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
               </svg>
             </button>
+            {accountOpen && <AccountMenu onClose={() => setAccountOpen(false)} />}
           </div>
         </header>
         <div className="view-container">
