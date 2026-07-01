@@ -2265,7 +2265,6 @@ select option {
   cursor: pointer;
   transition: all var(--transition-fast);
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .assistant-trigger__label {

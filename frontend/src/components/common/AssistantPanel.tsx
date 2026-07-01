@@ -28,7 +28,15 @@ export function AssistantPanel({ isOpen, onClose }: AssistantPanelProps) {
     {
       id: 'welcome',
       role: 'assistant',
-      content: "I can help troubleshoot your cluster. Try asking:\n• \"what is wrong\" — list all unhealthy resources\n• \"why is payment-service crashing\" — diagnose a specific resource\n• \"show errors\" — recent error logs\n• \"high memory\" — top resources by memory usage\n• \"high cpu\" — top resources by CPU usage\n• \"what changed recently\" — deployment history\n• \"is api-gateway healthy\" — check specific resource status",
+      content: "I can help troubleshoot your cluster. Here are the patterns I understand:",
+      findings: [
+        { severity: 'info', detail: '"why is [X] crashing/failing/restarting" — diagnose a resource' },
+        { severity: 'info', detail: '"what is wrong" — list all unhealthy resources' },
+        { severity: 'info', detail: '"show errors" — recent error log lines' },
+        { severity: 'info', detail: '"high memory" or "high cpu" — top resources by usage' },
+        { severity: 'info', detail: '"what changed recently" — deployment event history' },
+        { severity: 'info', detail: '"is [X] healthy" — check specific resource status' },
+      ],
       timestamp: Date.now(),
     },
   ]);
@@ -47,6 +55,16 @@ export function AssistantPanel({ isOpen, onClose }: AssistantPanelProps) {
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 100);
   }, [isOpen]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
