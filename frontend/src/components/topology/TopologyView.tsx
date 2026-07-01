@@ -221,6 +221,59 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
         transform.y * dpr
       );
 
+      // Draw namespace swimlanes (background regions)
+      const namespaceGroups = new Map<string, { minX: number; minY: number; maxX: number; maxY: number }>();
+      for (const node of layoutNodes) {
+        if (node.x == null || node.y == null || !node.namespace) continue;
+        const ns = node.namespace;
+        const existing = namespaceGroups.get(ns);
+        const pad = node.radius + 20;
+        if (existing) {
+          existing.minX = Math.min(existing.minX, node.x - pad);
+          existing.minY = Math.min(existing.minY, node.y - pad);
+          existing.maxX = Math.max(existing.maxX, node.x + pad);
+          existing.maxY = Math.max(existing.maxY, node.y + pad);
+        } else {
+          namespaceGroups.set(ns, {
+            minX: node.x - pad,
+            minY: node.y - pad,
+            maxX: node.x + pad,
+            maxY: node.y + pad,
+          });
+        }
+      }
+
+      const nsColors = ['rgba(109,156,255,0.04)', 'rgba(94,236,213,0.04)', 'rgba(255,193,69,0.04)', 'rgba(167,139,250,0.04)'];
+      const nsBorderColors = ['rgba(109,156,255,0.15)', 'rgba(94,236,213,0.15)', 'rgba(255,193,69,0.15)', 'rgba(167,139,250,0.15)'];
+      let nsIdx = 0;
+      for (const [ns, bounds] of namespaceGroups) {
+        const padding = 16;
+        const x = bounds.minX - padding;
+        const y = bounds.minY - padding;
+        const w2 = bounds.maxX - bounds.minX + padding * 2;
+        const h2 = bounds.maxY - bounds.minY + padding * 2;
+
+        // Background
+        ctx.fillStyle = nsColors[nsIdx % nsColors.length];
+        ctx.beginPath();
+        ctx.roundRect(x, y, w2, h2, 12);
+        ctx.fill();
+
+        // Border
+        ctx.strokeStyle = nsBorderColors[nsIdx % nsBorderColors.length];
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Namespace label
+        ctx.fillStyle = nsBorderColors[nsIdx % nsBorderColors.length].replace('0.15', '0.6');
+        ctx.font = '11px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(ns, x + 8, y + 6);
+
+        nsIdx++;
+      }
+
       // Draw links
       for (const link of layoutLinks) {
         const source = link.source as LayoutNode;
