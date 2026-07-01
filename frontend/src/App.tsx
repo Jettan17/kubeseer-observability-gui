@@ -3,6 +3,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { StatusBar } from './components/layout/StatusBar';
 import { TopologyView } from './components/topology/TopologyView';
 import { TopologyControls } from './components/topology/TopologyControls';
+import { ServiceMap } from './components/topology/ServiceMap';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
@@ -38,6 +39,7 @@ function App() {
     status?: string;
     search?: string;
   }>({});
+  const [topoMode, setTopoMode] = useState<'resources' | 'services'>('resources');
 
   // Load initial cluster data
   const loadClusterData = useCallback((clusterName: string) => {
@@ -152,11 +154,31 @@ function App() {
         <div className="view-container">
           {activeView === 'topology' && (
             <>
-              <TopologyControls
-                namespaces={namespaces}
-                onFilterChange={setTopoFilters}
-              />
-              <TopologyView filters={topoFilters} onNodeClick={setSelectedResource} />
+              <div className="topology-mode-toggle">
+                <button
+                  className={`topology-mode-btn ${topoMode === 'resources' ? 'topology-mode-btn--active' : ''}`}
+                  onClick={() => setTopoMode('resources')}
+                >
+                  Resources
+                </button>
+                <button
+                  className={`topology-mode-btn ${topoMode === 'services' ? 'topology-mode-btn--active' : ''}`}
+                  onClick={() => setTopoMode('services')}
+                >
+                  Service Map
+                </button>
+              </div>
+              {topoMode === 'resources' ? (
+                <>
+                  <TopologyControls
+                    namespaces={namespaces}
+                    onFilterChange={setTopoFilters}
+                  />
+                  <TopologyView filters={topoFilters} onNodeClick={setSelectedResource} />
+                </>
+              ) : (
+                <ServiceMap clusterId={activeContext || 'default'} />
+              )}
             </>
           )}
           {activeView === 'logs' && <LogViewer />}

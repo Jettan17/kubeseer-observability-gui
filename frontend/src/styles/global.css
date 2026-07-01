@@ -1881,3 +1881,82 @@ select option {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
 }
+
+
+/* === Service Map === */
+.service-map {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.service-map__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.service-map__header h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.service-map__legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.service-map__legend > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-map__legend-line {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.service-map__legend-line--healthy { background: rgba(109, 156, 255, 0.6); }
+.service-map__legend-line--warning { background: rgba(255, 193, 69, 0.6); }
+.service-map__legend-line--critical { background: rgba(255, 107, 107, 0.6); }
+
+
+/* === Topology Mode Toggle === */
+.topology-mode-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 8px 20px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.topology-mode-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.topology-mode-btn--active {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-color: var(--accent-primary);
+}
+
+.topology-mode-btn:not(.topology-mode-btn--active):hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
