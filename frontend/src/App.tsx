@@ -7,7 +7,7 @@ import { ServiceMap } from './components/topology/ServiceMap';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette, ToastContainer, emitToast } from './components/common';
+import { ClusterSelector, SearchBar, ThemeToggle, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { useUIStore } from './stores/ui';
@@ -26,7 +26,6 @@ function App() {
   useTheme();
   const { showHelp, setShowHelp } = useKeyboardShortcuts();
   const activeView = useUIStore((s) => s.activeView);
-  const setActiveView = useUIStore((s) => s.setActiveView);
   const resources = useClusterStore((s) => s.resources);
   const activeContext = useClusterStore((s) => s.activeContext);
   const [traces, setTraces] = useState<Trace[]>([]);
@@ -106,11 +105,10 @@ function App() {
     }
   }, [activeContext, loadClusterData]);
 
-  // Health bar click → switch to topology and apply filter
+  // Health bar click → filter topology
   const handleHealthClick = useCallback((status: string) => {
-    setTopoFilters({ status });
-    setActiveView('topology');
-  }, [setActiveView]);
+    setTopoFilters((prev) => prev.status === status ? {} : { status });
+  }, []);
 
   // Search bar → navigate to resource
   const handleSearchResultClick = useCallback((resource: ResourceNode) => {
@@ -142,13 +140,6 @@ function App() {
         <header className="main-header">
           <ClusterSelector />
           <SearchBar onResultClick={handleSearchResultClick} />
-          <HealthBar
-            healthy={healthSummary.healthy}
-            warning={healthSummary.warning}
-            critical={healthSummary.critical}
-            unknown={healthSummary.unknown}
-            onClick={handleHealthClick}
-          />
           <ThemeToggle />
         </header>
         <div className="view-container">
@@ -167,6 +158,13 @@ function App() {
                 >
                   Service Map
                 </button>
+                <HealthBar
+                  healthy={healthSummary.healthy}
+                  warning={healthSummary.warning}
+                  critical={healthSummary.critical}
+                  unknown={healthSummary.unknown}
+                  onClick={handleHealthClick}
+                />
               </div>
               {topoMode === 'resources' ? (
                 <>

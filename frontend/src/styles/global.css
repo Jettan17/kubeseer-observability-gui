@@ -193,6 +193,8 @@ body {
   background: var(--bg-secondary);
   backdrop-filter: blur(12px);
   flex-shrink: 0;
+  position: relative;
+  z-index: 50;
 }
 
 .view-container {
@@ -309,7 +311,7 @@ button {
   list-style: none;
   max-height: 300px;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 1000;
   padding: 4px;
 }
 

@@ -14,8 +14,8 @@ const NAMESPACES = ['production', 'staging', 'monitoring', 'kube-system'];
 export function generateMockContexts(): ClusterContext[] {
   return [
     { name: 'prod-us-east-1', clusterUrl: 'https://k8s.prod-east.example.com:6443', namespace: 'production', connected: true },
-    { name: 'staging-eu-west-1', clusterUrl: 'https://k8s.staging-eu.example.com:6443', namespace: 'staging', connected: false },
-    { name: 'dev-local', clusterUrl: 'https://192.168.1.100:6443', namespace: 'default', connected: false },
+    { name: 'staging-eu-west-1', clusterUrl: 'https://k8s.staging-eu.example.com:6443', namespace: 'staging', connected: true },
+    { name: 'dev-local', clusterUrl: 'https://192.168.1.100:6443', namespace: 'default', connected: true },
   ];
 }
 
