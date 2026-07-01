@@ -565,16 +565,17 @@ button {
   gap: 12px;
   border-bottom: 1px solid var(--border-secondary);
   transition: background var(--transition-fast);
+  font-variant-numeric: tabular-nums;
 }
 
 .log-line:hover {
   background: var(--bg-hover);
 }
 
-.log-line--error { border-left: 3px solid var(--log-error); }
-.log-line--warn { border-left: 3px solid var(--log-warn); }
+.log-line--error { border-left: 3px solid var(--log-error); background: rgba(255, 107, 107, 0.02); }
+.log-line--warn { border-left: 3px solid var(--log-warn); background: rgba(255, 193, 69, 0.02); }
 .log-line--info { border-left: 3px solid transparent; }
-.log-line--debug { border-left: 3px solid transparent; opacity: 0.7; }
+.log-line--debug { border-left: 3px solid transparent; opacity: 0.6; }
 
 .log-line__time {
   color: var(--text-tertiary);
@@ -777,25 +778,27 @@ button {
 .trace-item {
   display: block;
   width: 100%;
-  padding: 12px;
+  padding: 12px 14px;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: none;
   text-align: left;
   color: var(--text-primary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
   margin-bottom: 4px;
 }
 
 .trace-item:hover {
   background: var(--bg-hover);
   border-color: var(--border-primary);
+  transform: translateX(2px);
 }
 
 .trace-item--selected {
   background: var(--accent-primary-dim);
   border-color: var(--border-accent);
+  box-shadow: inset 3px 0 0 var(--accent-primary);
 }
 
 .trace-item__header {

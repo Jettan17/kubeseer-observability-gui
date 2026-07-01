@@ -1,15 +1,18 @@
 import { useMemo, useRef, useEffect, useState } from 'react';
-import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, SimulationNodeDatum, SimulationLinkDatum } from 'd3-force';
 
-interface ServiceNode extends SimulationNodeDatum {
+interface ServiceNode {
   id: string;
   name: string;
   requestsPerSec: number;
   errorRate: number;
   avgLatency: number;
+  x?: number;
+  y?: number;
 }
 
-interface ServiceEdge extends SimulationLinkDatum<ServiceNode> {
+interface ServiceEdge {
+  source: string | ServiceNode;
+  target: string | ServiceNode;
   requestsPerSec: number;
   errorRate: number;
 }
@@ -63,21 +66,63 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
     return { nodes: serviceNodes, edges: serviceEdges };
   }, [clusterId]);
 
-  // Run force simulation
+  // Hierarchical left-to-right layout (like an architecture diagram)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const w = canvas.clientWidth || 700;
     const h = canvas.clientHeight || 500;
 
-    const sim = forceSimulation(graphData.nodes)
-      .force('link', forceLink<ServiceNode, ServiceEdge>(graphData.edges).id((d) => d.id).distance(140).strength(0.4))
-      .force('charge', forceManyBody().strength(-400))
-      .force('center', forceCenter(w / 2, h / 2))
-      .force('collision', forceCollide(50));
+    // Assign layers (depth from source) using BFS
+    const layers: Record<string, number> = {};
+    const edgeMap = new Map<string, string[]>();
+    for (const e of graphData.edges) {
+      const src = typeof e.source === 'string' ? e.source : (e.source as any).id;
+      const tgt = typeof e.target === 'string' ? e.target : (e.target as any).id;
+      if (!edgeMap.has(src)) edgeMap.set(src, []);
+      edgeMap.get(src)!.push(tgt);
+    }
 
-    sim.tick(200);
-    sim.stop();
+    // BFS from api-gateway (the entry point)
+    const queue = ['api-gateway'];
+    layers['api-gateway'] = 0;
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      const targets = edgeMap.get(current) || [];
+      for (const t of targets) {
+        if (!(t in layers)) {
+          layers[t] = layers[current] + 1;
+          queue.push(t);
+        }
+      }
+    }
+    // Assign any unvisited nodes to the last layer
+    for (const node of graphData.nodes) {
+      if (!(node.id in layers)) layers[node.id] = 3;
+    }
+
+    // Position nodes in columns (layers) with even vertical spacing
+    const maxLayer = Math.max(...Object.values(layers));
+    const layerNodes: Record<number, ServiceNode[]> = {};
+    for (const node of graphData.nodes) {
+      const l = layers[node.id];
+      if (!layerNodes[l]) layerNodes[l] = [];
+      layerNodes[l].push(node);
+    }
+
+    const marginX = 100;
+    const marginY = 60;
+    const colWidth = (w - marginX * 2) / Math.max(maxLayer, 1);
+
+    for (let layer = 0; layer <= maxLayer; layer++) {
+      const nodesInLayer = layerNodes[layer] || [];
+      const rowHeight = (h - marginY * 2) / Math.max(nodesInLayer.length - 1, 1);
+      const offsetY = nodesInLayer.length === 1 ? h / 2 : marginY;
+      nodesInLayer.forEach((node, i) => {
+        node.x = marginX + layer * colWidth;
+        node.y = offsetY + i * rowHeight;
+      });
+    }
 
     setNodes([...graphData.nodes]);
     setEdges([...graphData.edges]);
@@ -106,9 +151,11 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
 
       // Draw edges with thickness based on traffic
       for (const edge of edges) {
-        const source = edge.source as ServiceNode;
-        const target = edge.target as ServiceNode;
-        if (source.x == null || source.y == null || target.x == null || target.y == null) continue;
+        const srcId = typeof edge.source === 'string' ? edge.source : edge.source.id;
+        const tgtId = typeof edge.target === 'string' ? edge.target : edge.target.id;
+        const source = nodes.find((n) => n.id === srcId);
+        const target = nodes.find((n) => n.id === tgtId);
+        if (!source?.x || !source?.y || !target?.x || !target?.y) continue;
 
         const thickness = Math.max(1.5, Math.min(6, edge.requestsPerSec / 300));
         const color = edge.errorRate > 3 ? 'rgba(255, 107, 107, 0.6)' :
@@ -121,18 +168,19 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
         ctx.lineWidth = thickness;
         ctx.stroke();
 
-        // Arrow
+        // Arrow (filled triangle at 70% along the edge)
         const angle = Math.atan2(target.y - source.y, target.x - source.x);
-        const arrowLen = 10;
-        const midX = (source.x + target.x) / 2;
-        const midY = (source.y + target.y) / 2;
+        const arrowLen = 8;
+        const t = 0.65;
+        const ax = source.x + (target.x - source.x) * t;
+        const ay = source.y + (target.y - source.y) * t;
         ctx.beginPath();
-        ctx.moveTo(midX + arrowLen * Math.cos(angle - 0.4), midY + arrowLen * Math.sin(angle - 0.4));
-        ctx.lineTo(midX, midY);
-        ctx.lineTo(midX + arrowLen * Math.cos(angle + 0.4), midY + arrowLen * Math.sin(angle + 0.4));
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        ctx.moveTo(ax + arrowLen * Math.cos(angle), ay + arrowLen * Math.sin(angle));
+        ctx.lineTo(ax + arrowLen * Math.cos(angle - 2.4), ay + arrowLen * Math.sin(angle - 2.4));
+        ctx.lineTo(ax + arrowLen * Math.cos(angle + 2.4), ay + arrowLen * Math.sin(angle + 2.4));
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
       }
 
       // Draw service nodes
