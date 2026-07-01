@@ -197,3 +197,70 @@ All 163 tests pass. 0 compiler warnings. Server verified serving full frontend a
 - Log-to-trace: trace IDs in logs don't map to specific mock traces (would work with real backend)
 - Service map: no hover tooltips on nodes (would show detailed stats)
 - Deployment timeline: static mock data (would come from K8s Deployment watch events)
+
+### Iteration 13: Command Palette → Focused Resource Search
+**Date:** 2026-07-01
+**Trigger:** User feedback — command palette felt useless with shortcuts already handling navigation
+**Root Cause:** The command palette tried to be a swiss army knife (navigate, theme, resources) when individual tools already existed for each
+**Changes:**
+- Removed command palette's navigation/theme actions entirely
+- Replaced with focused resource search: single purpose, search pods/deploys/services/namespaces
+- Shows status badge per result (healthy/warning/critical)
+- Selecting a result opens pod detail drawer
+- Changed hotkey from ⌘K to `/` (matches convention, simpler)
+- Sidebar button updated: "⌘ Commands" → "🔍 Search"
+
+**Outcome:** Cleaner UX, single-purpose overlay that does one thing well
+
+### Iteration 14: Escape Key & Drawer Animation
+**Date:** 2026-07-01
+**Trigger:** Escape didn't close search overlay or pod drawer
+**Root Cause:** 
+- Search overlay: Escape was blocked by the `isInput` guard (input was focused)
+- Pod drawer: No keydown listener existed
+**Changes:**
+- Search overlay: Escape always fires (removed input guard for that key)
+- Pod drawer: Added useEffect keydown listener for Escape
+- Drawer now has slide-out exit animation (reverse of entry, 180ms)
+- Overlay fades out simultaneously
+
+**Outcome:** Escape universally closes overlays, drawer exit feels polished
+
+### Iteration 15: UI Polish Pass
+**Date:** 2026-07-01
+**Trigger:** Metrics layout 3+1 (ugly), emoji search icon, general tightening
+**Changes:**
+- Metrics grid forced to 2×2 (was auto-fit causing 3+1 on wide screens)
+- Golden signals responsive: 4-col → 2-col under 900px
+- Sidebar search icon: emoji 🔍 → monochrome SVG (design system consistency)
+- Input border-radius unified to radius-md
+- Service dependency map: KIV (kept for demo capability)
+
+**Outcome:** Consistent visual rhythm, no layout jank
+
+### Current State Summary
+
+**Features implemented (Phase 13):**
+1. ✅ Theme toggle (dark/light/system)
+2. ✅ Resource search overlay (/ hotkey)
+3. ✅ Toast notifications (30s cadence)
+4. ✅ Keyboard shortcuts (1-4, /, ?, Esc) + help overlay
+5. ✅ Pod detail drawer (click node → slide-out panel → view logs/metrics/traces)
+6. ✅ Namespace swimlanes in topology
+7. ✅ Golden signals dashboard (latency/traffic/errors/saturation)
+8. ✅ Log-to-trace correlation (regex detection, clickable links)
+9. ✅ Deployment timeline (below metrics charts)
+10. ✅ Service dependency map (force-directed traffic graph)
+
+**Test coverage:**
+- Backend: 79 tests (Rust)
+- Frontend: 84 tests (Vitest)
+- Total: 163 tests, 0 failures
+- 0 compiler warnings, 0 clippy issues
+
+**Architecture:**
+- Single Rust binary serves embedded React SPA
+- Zustand stores are single source of truth
+- Mock data generators are the only swap point for real backend
+- All components read from stores, never from generators directly
+- `loadClusterData()` in App.tsx is the integration point for real API calls
