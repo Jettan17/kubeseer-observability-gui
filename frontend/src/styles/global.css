@@ -1682,3 +1682,74 @@ select option {
   opacity: 0.9;
   color: var(--text-inverse);
 }
+
+
+/* === Golden Signals === */
+.golden-signals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.golden-signal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  transition: all var(--transition-fast);
+}
+
+.golden-signal:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.golden-signal--warning { border-left: 3px solid var(--status-warning); }
+.golden-signal--critical { border-left: 3px solid var(--status-critical); }
+.golden-signal--healthy { border-left: 3px solid var(--status-healthy); }
+
+.golden-signal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.golden-signal__name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+.golden-signal__trend {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.golden-signal__value {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.golden-signal__unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+.golden-signal__sparkline {
+  opacity: 0.8;
+}
+
+.sparkline-svg {
+  display: block;
+  width: 100%;
+  height: 28px;
+}

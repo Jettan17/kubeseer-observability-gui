@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useMetricsStore, TimeWindow } from '../../stores/metrics';
 import { TimeSeriesChart } from './TimeSeriesChart';
 import { ResourceGauge } from './ResourceGauge';
+import { GoldenSignals } from './GoldenSignals';
 import { getMetricsForWindow } from '../../lib/mock-metrics-store';
 
 interface MetricsDashboardProps {
@@ -50,7 +51,9 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
           <p>Select a resource to view metrics</p>
         </div>
       ) : (
-        <div className="metrics-dashboard__grid">
+        <>
+          <GoldenSignals clusterId={resourceUid || 'default'} />
+          <div className="metrics-dashboard__grid">
           {series.map((s, i) => (
             <div key={s.name} className="metrics-dashboard__card">
               <h3 className="metrics-dashboard__card-title">{s.name}</h3>
@@ -69,7 +72,8 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
               )}
             </div>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
