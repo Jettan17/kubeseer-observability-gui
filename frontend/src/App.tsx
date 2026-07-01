@@ -6,7 +6,7 @@ import { TopologyControls } from './components/topology/TopologyControls';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, HealthBar, ThemeToggle } from './components/common';
+import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette } from './components/common';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -108,6 +108,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <CommandPalette />
       <Sidebar />
       <main className="main-content">
         <header className="main-header">
