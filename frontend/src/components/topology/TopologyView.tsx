@@ -445,7 +445,7 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
     <div className="topology-view">
       <canvas
         ref={canvasRef}
-        style={{ width: '100%', height: '100%', display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block', position: 'absolute', inset: 0 }}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}

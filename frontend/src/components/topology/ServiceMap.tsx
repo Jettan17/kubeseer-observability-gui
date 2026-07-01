@@ -183,46 +183,59 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
         ctx.fill();
       }
 
-      // Draw service nodes
+      // Draw service nodes (same style as topology)
       for (const node of nodes) {
         if (node.x == null || node.y == null) continue;
-        const r = 30;
+        const r = 32;
 
         const fillColor = node.errorRate > 4 ? '#ff5c6c' :
           node.errorRate > 2 ? '#ffb938' : '#4aedc2';
 
-        // Glow
-        ctx.shadowColor = fillColor;
-        ctx.shadowBlur = 6;
+        ctx.save();
 
-        // Gradient fill (sphere effect)
+        // Subtle glow
+        ctx.shadowColor = fillColor;
+        ctx.shadowBlur = 5;
+
+        // Radial gradient fill (same 3D sphere as topology)
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
         const grad = ctx.createRadialGradient(node.x - r * 0.3, node.y - r * 0.3, 0, node.x, node.y, r * 1.2);
-        grad.addColorStop(0, fillColor + '40');
-        grad.addColorStop(0.7, fillColor + '18');
-        grad.addColorStop(1, fillColor + '08');
+        const num = parseInt(fillColor.replace('#', ''), 16);
+        const cr = Math.min(255, (num >> 16) + 40);
+        const cg = Math.min(255, ((num >> 8) & 0xFF) + 40);
+        const cb = Math.min(255, (num & 0xFF) + 40);
+        grad.addColorStop(0, `rgb(${cr},${cg},${cb})`);
+        grad.addColorStop(0.6, fillColor);
+        const dr = Math.max(0, (num >> 16) - 30);
+        const dg = Math.max(0, ((num >> 8) & 0xFF) - 30);
+        const db = Math.max(0, (num & 0xFF) - 30);
+        grad.addColorStop(1, `rgb(${dr},${dg},${db})`);
         ctx.fillStyle = grad;
+        ctx.globalAlpha = 0.92;
         ctx.fill();
 
         // Border
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = fillColor + '60';
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
         // Service name
-        ctx.fillStyle = '#eef1f8';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const shortName = node.name.replace('-service', '').replace('-redis', '');
-        ctx.fillText(shortName, node.x, node.y - 4);
+        ctx.fillText(shortName, node.x, node.y - 5);
 
         // Requests/sec below
         ctx.font = '9px Inter, sans-serif';
-        ctx.fillStyle = '#8892a8';
-        ctx.fillText(`${node.requestsPerSec} req/s`, node.x, node.y + 10);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillText(`${node.requestsPerSec} req/s`, node.x, node.y + 9);
+
+        ctx.restore();
       }
 
       animRef.current = requestAnimationFrame(render);

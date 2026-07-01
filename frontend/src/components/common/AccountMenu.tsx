@@ -11,8 +11,15 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
     const handler = (e: MouseEvent) => {
       if (!ref.current?.contains(e.target as Node)) onClose();
     };
+    const keyHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
   }, [onClose]);
 
   return (
@@ -43,9 +50,11 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
       </button>
       <button className="account-menu__item">
         <span>🔑</span> API Keys
+        <span className="account-menu__hint">Programmatic access</span>
       </button>
       <button className="account-menu__item">
         <span>📋</span> Audit Log
+        <span className="account-menu__hint">Activity history</span>
       </button>
       <div className="account-menu__divider" />
       <button className="account-menu__item account-menu__item--danger">

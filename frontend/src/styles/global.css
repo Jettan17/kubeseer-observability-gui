@@ -2666,3 +2666,10 @@ select:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--
   background: var(--status-critical-dim);
   color: var(--status-critical);
 }
+
+.account-menu__hint {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
