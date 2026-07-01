@@ -6,7 +6,7 @@ import { TopologyControls } from './components/topology/TopologyControls';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette } from './components/common';
+import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette, ToastContainer, emitToast } from './components/common';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -84,7 +84,23 @@ function App() {
       logStore.appendLines(generateMockLogs(2));
     }, 2500);
 
-    return () => clearInterval(logInterval);
+    // Simulate real-time events (toasts)
+    const toastEvents = [
+      { severity: 'critical' as const, title: 'Pod CrashLoopBackOff', message: 'payment-service-a7x2k restarted 12 times', resource: 'production/payment-service-a7x2k' },
+      { severity: 'warning' as const, title: 'High Memory', message: 'Node ip-10-0-2-102 at 89% memory utilization', resource: 'ip-10-0-2-102.ec2.internal' },
+      { severity: 'info' as const, title: 'Deployment Scaled', message: 'api-gateway scaled from 2 to 4 replicas', resource: 'production/api-gateway' },
+      { severity: 'warning' as const, title: 'Slow Response', message: 'user-service p99 latency exceeded 500ms', resource: 'production/user-service' },
+    ];
+    let toastIdx = 0;
+    const toastInterval = setInterval(() => {
+      emitToast(toastEvents[toastIdx % toastEvents.length]);
+      toastIdx++;
+    }, 8000);
+
+    return () => {
+      clearInterval(logInterval);
+      clearInterval(toastInterval);
+    };
   }, [loadClusterData]);
 
   // React to cluster switches
@@ -109,6 +125,7 @@ function App() {
   return (
     <div className="app-shell">
       <CommandPalette />
+      <ToastContainer />
       <Sidebar />
       <main className="main-content">
         <header className="main-header">
