@@ -1357,3 +1357,94 @@ select option {
   background: var(--status-critical-dim);
   color: var(--status-critical);
 }
+
+
+/* === Shortcuts Help === */
+.shortcuts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.12s ease;
+}
+
+.shortcuts-panel {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  min-width: 360px;
+  animation: slideDown 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shortcuts-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shortcuts-panel__header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.shortcuts-panel__close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.shortcuts-panel__close:hover {
+  background: var(--status-critical-dim);
+  color: var(--status-critical);
+}
+
+.shortcuts-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shortcuts-panel__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.shortcuts-panel__keys {
+  display: flex;
+  gap: 4px;
+}
+
+.shortcuts-panel__kbd {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 3px 8px;
+  min-width: 24px;
+  text-align: center;
+  font-family: inherit;
+}
+
+.shortcuts-panel__desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}

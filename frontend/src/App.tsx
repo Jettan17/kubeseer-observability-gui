@@ -7,11 +7,13 @@ import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
 import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette, ToastContainer, emitToast } from './components/common';
+import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
 import { useLogStore } from './stores/logs';
 import { useMetricsStore } from './stores/metrics';
 import { useTheme } from './hooks/useTheme';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import {
   generateMockContexts,
   generateMockResources,
@@ -22,6 +24,7 @@ import {
 
 function App() {
   useTheme();
+  const { showHelp, setShowHelp } = useKeyboardShortcuts();
   const activeView = useUIStore((s) => s.activeView);
   const resources = useClusterStore((s) => s.resources);
   const activeContext = useClusterStore((s) => s.activeContext);
@@ -126,6 +129,7 @@ function App() {
     <div className="app-shell">
       <CommandPalette />
       <ToastContainer />
+      {showHelp && <ShortcutsHelp onClose={() => setShowHelp(false)} />}
       <Sidebar />
       <main className="main-content">
         <header className="main-header">
