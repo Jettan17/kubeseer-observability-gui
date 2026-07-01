@@ -1305,6 +1305,13 @@ select option {
   gap: 8px;
   z-index: 900;
   max-width: 360px;
+  transition: right var(--transition-base);
+}
+
+/* Move toasts left when drawers are open */
+.app-shell:has(.pod-drawer-overlay) .toast-container,
+.app-shell:has(.assistant-panel) .toast-container {
+  right: 400px;
 }
 
 .toast {
@@ -2247,22 +2254,33 @@ select option {
 
 /* === Assistant Trigger Button === */
 .assistant-trigger {
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
   border: 1px solid var(--border-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--bg-input);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all var(--transition-fast);
   flex-shrink: 0;
+  margin-left: auto;
+}
+
+.assistant-trigger__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .assistant-trigger:hover,
 .assistant-trigger--active {
   border-color: var(--accent-primary);
   background: var(--accent-primary-dim);
+}
+
+.assistant-trigger:hover .assistant-trigger__label,
+.assistant-trigger--active .assistant-trigger__label {
+  color: var(--accent-primary);
 }

@@ -7,7 +7,7 @@ import { ServiceMap } from './components/topology/ServiceMap';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, ThemeToggle, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
+import { ClusterSelector, SearchBar, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { AssistantPanel } from './components/common/AssistantPanel';
@@ -107,6 +107,13 @@ function App() {
     }
   }, [activeContext, loadClusterData]);
 
+  // Listen for assistant toggle hotkey
+  useEffect(() => {
+    const handler = () => setAssistantOpen((prev) => !prev);
+    window.addEventListener('kubeseer:toggle-assistant', handler);
+    return () => window.removeEventListener('kubeseer:toggle-assistant', handler);
+  }, []);
+
   // Health bar click → filter topology
   const handleHealthClick = useCallback((status: string) => {
     setTopoFilters((prev) => prev.status === status ? {} : { status });
@@ -143,14 +150,14 @@ function App() {
         <header className="main-header">
           <ClusterSelector />
           <SearchBar onResultClick={handleSearchResultClick} />
-          <ThemeToggle />
           <button
             className={`assistant-trigger ${assistantOpen ? 'assistant-trigger--active' : ''}`}
             onClick={() => setAssistantOpen(!assistantOpen)}
-            title="Troubleshoot assistant"
+            title="Troubleshoot assistant (T)"
             aria-label="Open troubleshoot assistant"
           >
-            ⚡
+            <span>⚡</span>
+            <span className="assistant-trigger__label">Troubleshoot</span>
           </button>
         </header>
         <div className="view-container">

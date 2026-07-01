@@ -28,7 +28,7 @@ export function AssistantPanel({ isOpen, onClose }: AssistantPanelProps) {
     {
       id: 'welcome',
       role: 'assistant',
-      content: "I can help troubleshoot your cluster. Try asking:\n• \"what is wrong\"\n• \"why is payment-service crashing\"\n• \"show errors\"\n• \"high memory\"\n• \"what changed recently\"",
+      content: "I can help troubleshoot your cluster. Try asking:\n• \"what is wrong\" — list all unhealthy resources\n• \"why is payment-service crashing\" — diagnose a specific resource\n• \"show errors\" — recent error logs\n• \"high memory\" — top resources by memory usage\n• \"high cpu\" — top resources by CPU usage\n• \"what changed recently\" — deployment history\n• \"is api-gateway healthy\" — check specific resource status",
       timestamp: Date.now(),
     },
   ]);
