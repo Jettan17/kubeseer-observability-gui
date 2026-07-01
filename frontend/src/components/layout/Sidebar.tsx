@@ -61,10 +61,10 @@ export function Sidebar() {
           onClick={() => {
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
           }}
-          title="Command palette (Ctrl+K)"
+          title="Search resources (Ctrl+K)"
         >
-          <span className="sidebar__icon">⌘</span>
-          {!collapsed && <span className="sidebar__label">Commands</span>}
+          <span className="sidebar__icon">🔍</span>
+          {!collapsed && <span className="sidebar__label">Search</span>}
         </button>
       </div>
     </aside>

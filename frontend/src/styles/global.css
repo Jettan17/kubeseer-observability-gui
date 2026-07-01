@@ -1164,8 +1164,8 @@ select option {
   border-bottom: 1px solid var(--border-primary);
 }
 
-.command-palette__search-icon {
-  font-size: 14px;
+.command-palette__search-icon,
+.command-palette__search-svg {
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
@@ -1271,6 +1271,27 @@ select option {
   letter-spacing: 0.04em;
   color: var(--text-tertiary);
   flex-shrink: 0;
+}
+
+.command-palette__item-status {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.command-palette__item-status--healthy { background: var(--status-healthy-dim); color: var(--status-healthy); }
+.command-palette__item-status--warning { background: var(--status-warning-dim); color: var(--status-warning); }
+.command-palette__item-status--critical { background: var(--status-critical-dim); color: var(--status-critical); }
+.command-palette__item-status--unknown { background: var(--bg-hover); color: var(--text-tertiary); }
+
+.command-palette__hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
 }
 
 

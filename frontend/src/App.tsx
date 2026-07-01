@@ -97,16 +97,6 @@ function App() {
     return () => { clearInterval(logInterval); clearInterval(toastInterval); };
   }, [loadClusterData]);
 
-  // Listen for command palette filter dispatch
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      setTopoFilters(detail);
-    };
-    window.addEventListener('kubeseer:topo-filter', handler);
-    return () => window.removeEventListener('kubeseer:topo-filter', handler);
-  }, []);
-
   // React to cluster switches ONLY (not other state changes)
   useEffect(() => {
     if (activeContext && activeContext !== prevContextRef.current) {
@@ -139,7 +129,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <CommandPalette />
+      <CommandPalette onResultClick={handleSearchResultClick} />
       <ToastContainer />
       {showHelp && <ShortcutsHelp onClose={() => setShowHelp(false)} />}
       {selectedResource && (

@@ -1,128 +1,93 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useUIStore } from '../../stores/ui';
-import { useClusterStore } from '../../stores/cluster';
+/**
+ * Global search overlay (⌘K / Ctrl+K).
+ * Same search logic as the header search bar, but presented as a
+ * centered modal for focused resource discovery.
+ */
 
-interface CommandItem {
-  id: string;
-  category: 'recent' | 'navigate' | 'namespace' | 'resource';
-  label: string;
-  description?: string;
-  icon?: string;
-  action: () => void;
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useClusterStore, ResourceNode } from '../../stores/cluster';
+
+interface SearchResult {
+  resource: ResourceNode;
+  matchField: string;
 }
 
-// LRU recent commands
-const recentCommandIds: string[] = [];
-const MAX_RECENT = 5;
-
-function addToRecent(id: string) {
-  const idx = recentCommandIds.indexOf(id);
-  if (idx !== -1) recentCommandIds.splice(idx, 1);
-  recentCommandIds.unshift(id);
-  if (recentCommandIds.length > MAX_RECENT) recentCommandIds.pop();
+interface CommandPaletteProps {
+  onResultClick?: (resource: ResourceNode) => void;
 }
 
-// Event-based filter dispatch (consumed by App.tsx)
-export function dispatchTopoFilter(filter: { namespace?: string; search?: string }) {
-  window.dispatchEvent(new CustomEvent('kubeseer:topo-filter', { detail: filter }));
-}
-
-export function CommandPalette() {
+export function CommandPalette({ onResultClick }: CommandPaletteProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const setActiveView = useUIStore((s) => s.setActiveView);
   const resources = useClusterStore((s) => s.resources);
 
+  // Global shortcut: Ctrl+K / ⌘K
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
-      if (e.key === 'Escape' && isOpen) setIsOpen(false);
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
 
+  // Focus on open
   useEffect(() => {
     if (isOpen) {
       setQuery('');
+      setResults([]);
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
 
-  // Build items: namespaces first, then navigation, then resources
-  const allItems = useMemo((): CommandItem[] => {
-    const items: CommandItem[] = [];
+  // Search resources
+  const handleSearch = useCallback(
+    (q: string) => {
+      setQuery(q);
+      setSelectedIndex(0);
 
-    // Namespaces (deduplicated)
-    const namespaces = new Set<string>();
-    for (const r of resources.values()) {
-      if (r.namespace) namespaces.add(r.namespace);
-    }
-    for (const ns of namespaces) {
-      items.push({
-        id: `ns-${ns}`,
-        category: 'namespace',
-        label: ns,
-        description: 'Filter topology to namespace',
-        icon: '📁',
-        action: () => {
-          dispatchTopoFilter({ namespace: ns });
-          setActiveView('topology');
-        },
-      });
-    }
+      if (q.length < 1) {
+        setResults([]);
+        return;
+      }
 
-    // Navigation
-    items.push(
-      { id: 'nav-topology', category: 'navigate', label: 'Go to Topology', icon: '◎', action: () => setActiveView('topology') },
-      { id: 'nav-logs', category: 'navigate', label: 'Go to Logs', icon: '☰', action: () => setActiveView('logs') },
-      { id: 'nav-metrics', category: 'navigate', label: 'Go to Metrics', icon: '▤', action: () => setActiveView('metrics') },
-      { id: 'nav-traces', category: 'navigate', label: 'Go to Traces', icon: '⇢', action: () => setActiveView('traces') },
-    );
+      const lower = q.toLowerCase();
+      const matched: SearchResult[] = [];
 
-    // Resources (top 30)
-    const resourceList = Array.from(resources.values()).slice(0, 30);
-    for (const r of resourceList) {
-      items.push({
-        id: `resource-${r.uid}`,
-        category: 'resource',
-        label: r.name,
-        description: `${r.kind} in ${r.namespace || 'cluster'}`,
-        icon: r.kind === 'Pod' ? 'P' : r.kind === 'Deployment' ? 'D' : r.kind === 'Service' ? 'S' : r.kind === 'Node' ? 'N' : 'R',
-        action: () => {
-          dispatchTopoFilter({ search: r.name });
-          setActiveView('topology');
-        },
-      });
-    }
+      for (const resource of resources.values()) {
+        if (matched.length >= 15) break;
 
-    return items;
-  }, [resources, setActiveView]);
+        if (resource.name.toLowerCase().includes(lower)) {
+          matched.push({ resource, matchField: 'name' });
+        } else if (resource.namespace?.toLowerCase().includes(lower)) {
+          matched.push({ resource, matchField: 'namespace' });
+        } else if (resource.kind.toLowerCase().includes(lower)) {
+          matched.push({ resource, matchField: 'kind' });
+        } else if (
+          Object.keys(resource.labels).some(
+            (k) => k.toLowerCase().includes(lower) || resource.labels[k].toLowerCase().includes(lower)
+          )
+        ) {
+          matched.push({ resource, matchField: 'label' });
+        }
+      }
 
-  // Filter and sort: recent first
-  const filteredItems = useMemo(() => {
-    if (!query) {
-      const recent = recentCommandIds
-        .map((id) => allItems.find((item) => item.id === id))
-        .filter(Boolean)
-        .map((item) => ({ ...item!, category: 'recent' as const }));
-      const rest = allItems.filter((item) => !recentCommandIds.includes(item.id));
-      return [...recent, ...rest].slice(0, 12);
-    }
-    const lower = query.toLowerCase();
-    return allItems
-      .filter((item) => item.label.toLowerCase().includes(lower) || item.description?.toLowerCase().includes(lower))
-      .slice(0, 12);
-  }, [allItems, query]);
+      setResults(matched);
+    },
+    [resources]
+  );
 
-  // Scroll selected into view
+  // Scroll into view
   useEffect(() => {
     const container = resultsRef.current;
     if (!container) return;
@@ -130,21 +95,28 @@ export function CommandPalette() {
     if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [selectedIndex]);
 
+  const handleSelect = (resource: ResourceNode) => {
+    setIsOpen(false);
+    setQuery('');
+    onResultClick?.(resource);
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, filteredItems.length - 1));
+        setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setSelectedIndex((i) => Math.max(i - 1, 0));
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        const item = filteredItems[selectedIndex];
-        if (item) { addToRecent(item.id); item.action(); setIsOpen(false); }
+        if (results[selectedIndex]) {
+          handleSelect(results[selectedIndex].resource);
+        }
       }
     },
-    [filteredItems, selectedIndex]
+    [results, selectedIndex]
   );
 
   if (!isOpen) return null;
@@ -153,44 +125,56 @@ export function CommandPalette() {
     <div className="command-palette-overlay" onClick={() => setIsOpen(false)}>
       <div className="command-palette" onClick={(e) => e.stopPropagation()}>
         <div className="command-palette__input-wrapper">
-          <span className="command-palette__search-icon">⌘</span>
+          <svg className="command-palette__search-svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="11.5" y1="11.5" x2="16" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
           <input
             ref={inputRef}
             className="command-palette__input"
             type="text"
-            placeholder="Search namespaces, resources, actions..."
+            placeholder="Search pods, deployments, services, namespaces..."
             value={query}
-            onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
+            onChange={(e) => handleSearch(e.target.value)}
             onKeyDown={handleKeyDown}
-            aria-label="Command palette"
+            aria-label="Search resources"
           />
           <kbd className="command-palette__kbd">ESC</kbd>
         </div>
-        <div className="command-palette__results" role="listbox" ref={resultsRef}>
-          {filteredItems.length === 0 && (
-            <div className="command-palette__empty">No results found</div>
-          )}
-          {filteredItems.map((item, i) => (
-            <button
-              key={item.id}
-              className={`command-palette__item ${i === selectedIndex ? 'command-palette__item--selected' : ''}`}
-              onClick={() => { addToRecent(item.id); item.action(); setIsOpen(false); }}
-              role="option"
-              aria-selected={i === selectedIndex}
-            >
-              <span className="command-palette__item-icon">{item.icon}</span>
-              <div className="command-palette__item-content">
-                <span className="command-palette__item-label">{item.label}</span>
-                {item.description && (
-                  <span className="command-palette__item-desc">{item.description}</span>
-                )}
-              </div>
-              <span className="command-palette__item-category">
-                {item.category === 'recent' ? '⏱ recent' : item.category}
-              </span>
-            </button>
-          ))}
-        </div>
+        {results.length > 0 && (
+          <div className="command-palette__results" role="listbox" ref={resultsRef}>
+            {results.map((r, i) => (
+              <button
+                key={r.resource.uid}
+                className={`command-palette__item ${i === selectedIndex ? 'command-palette__item--selected' : ''}`}
+                onClick={() => handleSelect(r.resource)}
+                role="option"
+                aria-selected={i === selectedIndex}
+              >
+                <span className="command-palette__item-icon">
+                  {r.resource.kind === 'Pod' ? 'P' : r.resource.kind === 'Deployment' ? 'D' : r.resource.kind === 'Service' ? 'S' : r.resource.kind === 'Node' ? 'N' : r.resource.kind[0]}
+                </span>
+                <div className="command-palette__item-content">
+                  <span className="command-palette__item-label">{r.resource.name}</span>
+                  <span className="command-palette__item-desc">
+                    {r.resource.kind} {r.resource.namespace ? `in ${r.resource.namespace}` : ''}
+                  </span>
+                </div>
+                <span className={`command-palette__item-status command-palette__item-status--${r.resource.status.state}`}>
+                  {r.resource.status.state}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+        {query.length > 0 && results.length === 0 && (
+          <div className="command-palette__empty">No resources match "{query}"</div>
+        )}
+        {query.length === 0 && (
+          <div className="command-palette__hint">
+            Start typing to search across all resources in the cluster
+          </div>
+        )}
       </div>
     </div>
   );
