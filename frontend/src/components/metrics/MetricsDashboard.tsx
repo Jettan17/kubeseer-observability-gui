@@ -53,7 +53,7 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
         </div>
       ) : (
         <>
-          <GoldenSignals clusterId={resourceUid || 'default'} />
+          <GoldenSignals clusterId={resourceUid || 'default'} timeWindow={timeWindow} />
           <div className="metrics-dashboard__grid">
           {series.map((s, i) => (
             <div key={s.name} className="metrics-dashboard__card">

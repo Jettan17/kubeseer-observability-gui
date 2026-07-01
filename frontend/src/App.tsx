@@ -91,18 +91,17 @@ function App() {
       logStore.appendLines(generateMockLogs(2));
     }, 2500);
 
-    // Simulate real-time events (toasts)
-    const toastEvents = [
-      { severity: 'critical' as const, title: 'Pod CrashLoopBackOff', message: 'payment-service-a7x2k restarted 12 times', resource: 'production/payment-service-a7x2k' },
-      { severity: 'warning' as const, title: 'High Memory', message: 'Node ip-10-0-2-102 at 89% memory utilization', resource: 'ip-10-0-2-102.ec2.internal' },
-      { severity: 'info' as const, title: 'Deployment Scaled', message: 'api-gateway scaled from 2 to 4 replicas', resource: 'production/api-gateway' },
-      { severity: 'warning' as const, title: 'Slow Response', message: 'user-service p99 latency exceeded 500ms', resource: 'production/user-service' },
-    ];
+    // Simulate real-time events (toasts) — low frequency, deduplicated
     let toastIdx = 0;
     const toastInterval = setInterval(() => {
+      const toastEvents = [
+        { severity: 'critical' as const, title: 'Pod CrashLoopBackOff', message: 'payment-service-a7x2k restarted 12 times', resource: 'production/payment-service-a7x2k' },
+        { severity: 'warning' as const, title: 'High Memory', message: 'Node ip-10-0-2-102 at 89% memory utilization', resource: 'ip-10-0-2-102.ec2.internal' },
+        { severity: 'info' as const, title: 'Deployment Scaled', message: 'api-gateway scaled from 2 to 4 replicas', resource: 'production/api-gateway' },
+      ];
       emitToast(toastEvents[toastIdx % toastEvents.length]);
       toastIdx++;
-    }, 8000);
+    }, 25000); // Every 25 seconds — not overwhelming
 
     return () => {
       clearInterval(logInterval);

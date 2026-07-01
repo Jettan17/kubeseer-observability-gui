@@ -33,6 +33,9 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
   const [nodes, setNodes] = useState<ServiceNode[]>([]);
   const [edges, setEdges] = useState<ServiceEdge[]>([]);
   const animRef = useRef(0);
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const isDragging = useRef(false);
+  const lastMouse = useRef({ x: 0, y: 0 });
 
   // Generate service graph deterministically
   const graphData = useMemo(() => {
@@ -96,6 +99,10 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
     const render = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
+
+      // Apply pan/zoom transform
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.scale, transform.scale);
 
       // Draw edges with thickness based on traffic
       for (const edge of edges) {
@@ -165,7 +172,7 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
 
     animRef.current = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animRef.current);
-  }, [nodes, edges]);
+  }, [nodes, edges, transform]);
 
   return (
     <div className="service-map">
@@ -177,7 +184,30 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
           <span><span className="service-map__legend-line service-map__legend-line--critical" /> High errors</span>
         </div>
       </div>
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', minHeight: 400, display: 'block' }} />
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', minHeight: 400, display: 'block', cursor: isDragging.current ? 'grabbing' : 'grab' }}
+        onMouseDown={(e) => { isDragging.current = true; lastMouse.current = { x: e.clientX, y: e.clientY }; }}
+        onMouseMove={(e) => {
+          if (!isDragging.current) return;
+          const dx = e.clientX - lastMouse.current.x;
+          const dy = e.clientY - lastMouse.current.y;
+          lastMouse.current = { x: e.clientX, y: e.clientY };
+          setTransform((t) => ({ ...t, x: t.x + dx, y: t.y + dy }));
+        }}
+        onMouseUp={() => { isDragging.current = false; }}
+        onMouseLeave={() => { isDragging.current = false; }}
+        onWheel={(e) => {
+          e.preventDefault();
+          const rect = canvasRef.current!.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          const factor = e.deltaY > 0 ? 0.92 : 1.08;
+          setTransform((t) => {
+            const newScale = Math.max(0.3, Math.min(3, t.scale * factor));
+            const ratio = newScale / t.scale;
+            return { x: mouseX - (mouseX - t.x) * ratio, y: mouseY - (mouseY - t.y) * ratio, scale: newScale };
+          });
+        }}
+      />
     </div>
   );
 }

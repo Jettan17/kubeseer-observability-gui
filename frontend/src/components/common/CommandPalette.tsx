@@ -4,11 +4,22 @@ import { useClusterStore } from '../../stores/cluster';
 
 interface CommandItem {
   id: string;
-  category: 'navigate' | 'resource' | 'action';
+  category: 'recent' | 'navigate' | 'resource' | 'action';
   label: string;
   description?: string;
   icon?: string;
   action: () => void;
+}
+
+// LRU recent commands (persisted in memory)
+const recentCommandIds: string[] = [];
+const MAX_RECENT = 5;
+
+function addToRecent(id: string) {
+  const idx = recentCommandIds.indexOf(id);
+  if (idx !== -1) recentCommandIds.splice(idx, 1);
+  recentCommandIds.unshift(id);
+  if (recentCommandIds.length > MAX_RECENT) recentCommandIds.pop();
 }
 
 export function CommandPalette() {
@@ -16,6 +27,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const setActiveView = useUIStore((s) => s.setActiveView);
   const setTheme = useUIStore((s) => s.setTheme);
   const resources = useClusterStore((s) => s.resources);
@@ -47,18 +59,15 @@ export function CommandPalette() {
   // Build command items
   const allItems = useMemo((): CommandItem[] => {
     const items: CommandItem[] = [
-      // Navigation
       { id: 'nav-topology', category: 'navigate', label: 'Go to Topology', icon: '◎', action: () => setActiveView('topology') },
       { id: 'nav-logs', category: 'navigate', label: 'Go to Logs', icon: '☰', action: () => setActiveView('logs') },
       { id: 'nav-metrics', category: 'navigate', label: 'Go to Metrics', icon: '▤', action: () => setActiveView('metrics') },
       { id: 'nav-traces', category: 'navigate', label: 'Go to Traces', icon: '⇢', action: () => setActiveView('traces') },
-      // Actions
       { id: 'action-dark', category: 'action', label: 'Set Dark Theme', icon: '🌙', action: () => setTheme('dark') },
       { id: 'action-light', category: 'action', label: 'Set Light Theme', icon: '☀️', action: () => setTheme('light') },
       { id: 'action-system', category: 'action', label: 'Set System Theme', icon: '💻', action: () => setTheme('system') },
     ];
 
-    // Add resources (top 50 by name)
     const resourceList = Array.from(resources.values()).slice(0, 50);
     for (const r of resourceList) {
       items.push({
@@ -67,29 +76,46 @@ export function CommandPalette() {
         label: r.name,
         description: `${r.kind} ${r.namespace ? `in ${r.namespace}` : ''}`,
         icon: r.kind === 'Pod' ? 'P' : r.kind === 'Deployment' ? 'D' : r.kind === 'Service' ? 'S' : 'R',
-        action: () => {
-          // Navigate to topology with search filter
-          setActiveView('topology');
-        },
+        action: () => setActiveView('topology'),
       });
     }
 
     return items;
   }, [resources, setActiveView, setTheme]);
 
-  // Filter items by query
+  // Filter and sort: recent first, then matches
   const filteredItems = useMemo(() => {
-    if (!query) return allItems.slice(0, 15);
-    const lower = query.toLowerCase();
-    return allItems
-      .filter(
-        (item) =>
-          item.label.toLowerCase().includes(lower) ||
-          item.description?.toLowerCase().includes(lower) ||
-          item.category.includes(lower)
-      )
-      .slice(0, 15);
+    let items: CommandItem[];
+    if (!query) {
+      // Show recent at top, then navigation
+      const recent = recentCommandIds
+        .map((id) => allItems.find((item) => item.id === id))
+        .filter(Boolean)
+        .map((item) => ({ ...item!, category: 'recent' as const }));
+      const rest = allItems.filter((item) => !recentCommandIds.includes(item.id));
+      items = [...recent, ...rest].slice(0, 15);
+    } else {
+      const lower = query.toLowerCase();
+      items = allItems
+        .filter(
+          (item) =>
+            item.label.toLowerCase().includes(lower) ||
+            item.description?.toLowerCase().includes(lower)
+        )
+        .slice(0, 15);
+    }
+    return items;
   }, [allItems, query]);
+
+  // Scroll selected item into view
+  useEffect(() => {
+    const container = resultsRef.current;
+    if (!container) return;
+    const selected = container.children[selectedIndex] as HTMLElement;
+    if (selected) {
+      selected.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [selectedIndex]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -102,8 +128,10 @@ export function CommandPalette() {
         setSelectedIndex((i) => Math.max(i - 1, 0));
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (filteredItems[selectedIndex]) {
-          filteredItems[selectedIndex].action();
+        const item = filteredItems[selectedIndex];
+        if (item) {
+          addToRecent(item.id);
+          item.action();
           setIsOpen(false);
         }
       }
@@ -124,17 +152,13 @@ export function CommandPalette() {
             type="text"
             placeholder="Type a command or search..."
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setSelectedIndex(0);
-            }}
+            onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
             aria-label="Command palette search"
-            aria-activedescendant={filteredItems[selectedIndex]?.id}
           />
           <kbd className="command-palette__kbd">ESC</kbd>
         </div>
-        <div className="command-palette__results" role="listbox">
+        <div className="command-palette__results" role="listbox" ref={resultsRef}>
           {filteredItems.length === 0 && (
             <div className="command-palette__empty">No results found</div>
           )}
@@ -143,10 +167,7 @@ export function CommandPalette() {
               key={item.id}
               id={item.id}
               className={`command-palette__item ${i === selectedIndex ? 'command-palette__item--selected' : ''}`}
-              onClick={() => {
-                item.action();
-                setIsOpen(false);
-              }}
+              onClick={() => { addToRecent(item.id); item.action(); setIsOpen(false); }}
               role="option"
               aria-selected={i === selectedIndex}
             >
@@ -157,7 +178,9 @@ export function CommandPalette() {
                   <span className="command-palette__item-desc">{item.description}</span>
                 )}
               </div>
-              <span className="command-palette__item-category">{item.category}</span>
+              <span className="command-palette__item-category">
+                {item.category === 'recent' ? '⏱ recent' : item.category}
+              </span>
             </button>
           ))}
         </div>

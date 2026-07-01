@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 interface GoldenSignalsProps {
   clusterId: string;
+  timeWindow?: string;
 }
 
 interface SignalCard {
@@ -27,9 +28,9 @@ function hashStr(s: string): number {
   return Math.abs(h);
 }
 
-export function GoldenSignals({ clusterId }: GoldenSignalsProps) {
+export function GoldenSignals({ clusterId, timeWindow }: GoldenSignalsProps) {
   const signals = useMemo((): SignalCard[] => {
-    const rng = seeded(hashStr(clusterId + ':signals'));
+    const rng = seeded(hashStr(clusterId + ':signals:' + (timeWindow || '1h')));
 
     const latencyBase = 40 + rng() * 120;
     const trafficBase = 800 + rng() * 2000;
@@ -73,7 +74,7 @@ export function GoldenSignals({ clusterId }: GoldenSignalsProps) {
         sparkline: genSparkline(saturationBase, 8),
       },
     ];
-  }, [clusterId]);
+  }, [clusterId, timeWindow]);
 
   return (
     <div className="golden-signals">

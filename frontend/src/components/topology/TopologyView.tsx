@@ -366,9 +366,10 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
     isDraggingRef.current = false;
   }, []);
 
-  // Click handling
+  // Click handling — hide tooltip when opening drawer
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
+      if (isDraggingRef.current) return; // Don't click after drag
       if (!onNodeClick) return;
       const { x, y } = getLogicalCoords(e);
 
@@ -380,6 +381,8 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
       });
 
       if (hit) {
+        setTooltip({ visible: false, x: 0, y: 0, node: null });
+        setHoveredId(null);
         const resource = resources.get(hit.id);
         if (resource) onNodeClick(resource);
       }
@@ -387,14 +390,25 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
     [layoutNodes, getLogicalCoords, resources, onNodeClick]
   );
 
-  // Zoom with wheel
+  // Zoom with wheel — cursor position as anchor point
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
     const factor = e.deltaY > 0 ? 0.92 : 1.08;
-    setTransform((t) => ({
-      ...t,
-      scale: Math.max(0.2, Math.min(4, t.scale * factor)),
-    }));
+    setTransform((t) => {
+      const newScale = Math.max(0.2, Math.min(4, t.scale * factor));
+      // Zoom toward cursor: adjust x,y so the point under cursor stays fixed
+      const scaleRatio = newScale / t.scale;
+      const newX = mouseX - (mouseX - t.x) * scaleRatio;
+      const newY = mouseY - (mouseY - t.y) * scaleRatio;
+      return { x: newX, y: newY, scale: newScale };
+    });
   }, []);
 
   return (
