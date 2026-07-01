@@ -8,6 +8,7 @@ import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
 import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette, ToastContainer, emitToast } from './components/common';
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
+import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -29,6 +30,7 @@ function App() {
   const resources = useClusterStore((s) => s.resources);
   const activeContext = useClusterStore((s) => s.activeContext);
   const [traces, setTraces] = useState<Trace[]>([]);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
 
   // Topology filter state
   const [topoFilters, setTopoFilters] = useState<{
@@ -130,6 +132,9 @@ function App() {
       <CommandPalette />
       <ToastContainer />
       {showHelp && <ShortcutsHelp onClose={() => setShowHelp(false)} />}
+      {selectedResource && (
+        <PodDetailDrawer resource={selectedResource} onClose={() => setSelectedResource(null)} />
+      )}
       <Sidebar />
       <main className="main-content">
         <header className="main-header">
@@ -151,7 +156,7 @@ function App() {
                 namespaces={namespaces}
                 onFilterChange={setTopoFilters}
               />
-              <TopologyView filters={topoFilters} />
+              <TopologyView filters={topoFilters} onNodeClick={setSelectedResource} />
             </>
           )}
           {activeView === 'logs' && <LogViewer />}
