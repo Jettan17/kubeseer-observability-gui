@@ -56,16 +56,6 @@ export function AssistantPanel({ isOpen, onClose }: AssistantPanelProps) {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 100);
   }, [isOpen]);
 
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [isOpen, onClose]);
-
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;

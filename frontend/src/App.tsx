@@ -114,6 +114,18 @@ function App() {
     return () => window.removeEventListener('kubeseer:toggle-assistant', handler);
   }, []);
 
+  // Global Escape: close all overlays/panels
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedResource(null);
+        setAssistantOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   // Health bar click → filter topology
   const handleHealthClick = useCallback((status: string) => {
     setTopoFilters((prev) => prev.status === status ? {} : { status });
