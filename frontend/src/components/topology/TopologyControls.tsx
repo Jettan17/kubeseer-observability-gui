@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Dropdown } from '../common/Dropdown';
 
 interface TopologyControlsProps {
   namespaces: string[];
@@ -10,15 +11,11 @@ interface TopologyControlsProps {
 }
 
 export function TopologyControls({ namespaces, onFilterChange }: TopologyControlsProps) {
-  const [namespace, setNamespace] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
-  const [search, setSearch] = useState<string>('');
+  const [namespace, setNamespace] = useState('');
+  const [status, setStatus] = useState('');
+  const [search, setSearch] = useState('');
 
-  const handleChange = (
-    ns: string = namespace,
-    st: string = status,
-    sr: string = search
-  ) => {
+  const handleChange = (ns: string = namespace, st: string = status, sr: string = search) => {
     onFilterChange({
       namespace: ns || undefined,
       status: st || undefined,
@@ -26,47 +23,39 @@ export function TopologyControls({ namespaces, onFilterChange }: TopologyControl
     });
   };
 
+  const nsOptions = [
+    { value: '', label: 'All namespaces' },
+    ...namespaces.map((ns) => ({ value: ns, label: ns })),
+  ];
+
+  const statusOptions = [
+    { value: '', label: 'All statuses' },
+    { value: 'healthy', label: 'Healthy', icon: '🟢' },
+    { value: 'warning', label: 'Warning', icon: '🟡' },
+    { value: 'critical', label: 'Critical', icon: '🔴' },
+  ];
+
   return (
     <div className="topology-controls" role="toolbar" aria-label="Topology filters">
-      <select
+      <Dropdown
+        options={nsOptions}
         value={namespace}
-        onChange={(e) => {
-          setNamespace(e.target.value);
-          handleChange(e.target.value, status, search);
-        }}
+        onChange={(v) => { setNamespace(v); handleChange(v, status, search); }}
+        placeholder="All namespaces"
         aria-label="Filter by namespace"
-      >
-        <option value="">All namespaces</option>
-        {namespaces.map((ns) => (
-          <option key={ns} value={ns}>
-            {ns}
-          </option>
-        ))}
-      </select>
-
-      <select
+      />
+      <Dropdown
+        options={statusOptions}
         value={status}
-        onChange={(e) => {
-          setStatus(e.target.value);
-          handleChange(namespace, e.target.value, search);
-        }}
+        onChange={(v) => { setStatus(v); handleChange(namespace, v, search); }}
+        placeholder="All statuses"
         aria-label="Filter by status"
-      >
-        <option value="">All statuses</option>
-        <option value="healthy">Healthy</option>
-        <option value="warning">Warning</option>
-        <option value="critical">Critical</option>
-        <option value="unknown">Unknown</option>
-      </select>
-
+      />
       <input
         type="search"
         placeholder="Search resources..."
         value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          handleChange(namespace, status, e.target.value);
-        }}
+        onChange={(e) => { setSearch(e.target.value); handleChange(namespace, status, e.target.value); }}
         aria-label="Search resources"
       />
     </div>

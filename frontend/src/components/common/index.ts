@@ -1,4 +1,5 @@
 export { ClusterSelector } from './ClusterSelector';
+export { Dropdown } from './Dropdown';
 export { SearchBar } from './SearchBar';
 export { HealthBar } from './HealthBar';
 export { NotificationFeed } from './NotificationFeed';
