@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WaterfallView } from './WaterfallView';
 
 export interface Trace {
@@ -47,6 +47,13 @@ export function TraceExplorer({ traces, onTraceSelect }: TraceExplorerProps) {
     }
     return true;
   });
+
+  // Auto-select first trace if none selected and traces available
+  useEffect(() => {
+    if (!selectedTrace && filteredTraces.length > 0) {
+      setSelectedTrace(filteredTraces[0].traceId);
+    }
+  }, [filteredTraces, selectedTrace]);
 
   const handleSelect = (traceId: string) => {
     setSelectedTrace(traceId);
