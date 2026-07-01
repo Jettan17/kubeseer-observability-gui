@@ -10,6 +10,7 @@ import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
 import { ClusterSelector, SearchBar, ThemeToggle, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
+import { AssistantPanel } from './components/common/AssistantPanel';
 import { useUIStore } from './stores/ui';
 import { useClusterStore, ResourceNode } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -30,6 +31,7 @@ function App() {
   const activeContext = useClusterStore((s) => s.activeContext);
   const [traces, setTraces] = useState<Trace[]>([]);
   const [selectedResource, setSelectedResource] = useState<ResourceNode | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const prevContextRef = useRef<string | null>(null);
 
   // Topology filter state
@@ -135,12 +137,21 @@ function App() {
       {selectedResource && (
         <PodDetailDrawer resource={selectedResource} onClose={() => setSelectedResource(null)} />
       )}
+      <AssistantPanel isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
       <Sidebar />
       <main className="main-content">
         <header className="main-header">
           <ClusterSelector />
           <SearchBar onResultClick={handleSearchResultClick} />
           <ThemeToggle />
+          <button
+            className={`assistant-trigger ${assistantOpen ? 'assistant-trigger--active' : ''}`}
+            onClick={() => setAssistantOpen(!assistantOpen)}
+            title="Troubleshoot assistant"
+            aria-label="Open troubleshoot assistant"
+          >
+            ⚡
+          </button>
         </header>
         <div className="view-container">
           {activeView === 'topology' && (

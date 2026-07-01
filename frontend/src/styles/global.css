@@ -2054,3 +2054,215 @@ select option {
   padding: 1px 5px;
   font-family: inherit;
 }
+
+
+/* === Assistant Panel === */
+.assistant-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 26px;
+  width: 380px;
+  background: var(--bg-surface-raised);
+  border-left: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  z-index: 700;
+  animation: drawerSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.assistant-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.assistant-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.assistant-panel__icon {
+  font-size: 16px;
+}
+
+.assistant-panel__close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.assistant-panel__close:hover {
+  background: var(--status-critical-dim);
+  color: var(--status-critical);
+}
+
+.assistant-panel__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assistant-msg {
+  max-width: 95%;
+}
+
+.assistant-msg--user {
+  align-self: flex-end;
+}
+
+.assistant-msg--user .assistant-msg__content {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.assistant-msg--assistant .assistant-msg__content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px var(--radius-md) var(--radius-md) var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.assistant-msg__content p {
+  margin: 0;
+}
+
+.assistant-msg__content p + p {
+  margin-top: 4px;
+}
+
+.assistant-msg__findings {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assistant-finding {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border-primary);
+  background: var(--bg-input);
+  font-size: 12px;
+}
+
+.assistant-finding--critical { border-left-color: var(--status-critical); }
+.assistant-finding--warning { border-left-color: var(--status-warning); }
+.assistant-finding--info { border-left-color: var(--accent-primary); }
+
+.assistant-finding__resource {
+  display: block;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.assistant-finding__detail {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.assistant-finding__logs {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.assistant-finding__logs code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--log-error);
+  background: rgba(255, 107, 107, 0.06);
+  padding: 3px 6px;
+  border-radius: 3px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assistant-panel__input {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.assistant-panel__input input {
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+}
+
+.assistant-panel__input button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.assistant-panel__input button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.assistant-panel__input button:not(:disabled):hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+
+/* === Assistant Trigger Button === */
+.assistant-trigger {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.assistant-trigger:hover,
+.assistant-trigger--active {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary-dim);
+}
