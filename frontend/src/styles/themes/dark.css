@@ -1,78 +1,80 @@
-/* Dark theme — premium glassmorphic design */
+/* Dark Glassmorphism Theme — awwwards-level */
 [data-theme='dark'] {
-  /* Backgrounds */
-  --bg-primary: #08090d;
-  --bg-secondary: #0e1018;
-  --bg-sidebar: #0b0c13;
-  --bg-statusbar: #08090d;
-  --bg-hover: rgba(255, 255, 255, 0.04);
+  /* Background layers */
+  --bg-primary: #06070b;
+  --bg-secondary: rgba(12, 14, 22, 0.8);
+  --bg-sidebar: rgba(10, 12, 18, 0.92);
+  --bg-statusbar: rgba(6, 7, 11, 0.95);
+  --bg-hover: rgba(255, 255, 255, 0.035);
   --bg-active: rgba(109, 156, 255, 0.08);
-  --bg-surface: #12141e;
-  --bg-surface-raised: #181b26;
-  --bg-tooltip: rgba(22, 25, 36, 0.95);
-  --bg-glass: rgba(14, 16, 24, 0.7);
-  --bg-input: rgba(255, 255, 255, 0.03);
+  --bg-surface: rgba(16, 18, 28, 0.6);
+  --bg-surface-raised: rgba(20, 23, 35, 0.85);
+  --bg-tooltip: rgba(20, 23, 35, 0.95);
+  --bg-glass: rgba(12, 14, 22, 0.65);
+  --bg-input: rgba(255, 255, 255, 0.025);
 
-  /* Text */
-  --text-primary: #f0f2f8;
-  --text-secondary: #8b93a7;
-  --text-tertiary: #4e5567;
-  --text-inverse: #08090d;
+  /* Text hierarchy */
+  --text-primary: #eef1f8;
+  --text-secondary: #8892a8;
+  --text-tertiary: #4a5268;
+  --text-inverse: #06070b;
 
-  /* Borders */
+  /* Borders — very subtle, just enough structure */
   --border-primary: rgba(255, 255, 255, 0.06);
-  --border-secondary: rgba(255, 255, 255, 0.03);
-  --border-accent: rgba(109, 156, 255, 0.3);
+  --border-secondary: rgba(255, 255, 255, 0.025);
+  --border-accent: rgba(109, 156, 255, 0.25);
 
-  /* Accent */
+  /* Accent — vibrant blue-to-teal gradient palette */
   --accent-primary: #6d9cff;
-  --accent-primary-dim: rgba(109, 156, 255, 0.15);
+  --accent-primary-dim: rgba(109, 156, 255, 0.1);
   --accent-secondary: #5eecd5;
-  --accent-secondary-dim: rgba(94, 236, 213, 0.12);
+  --accent-secondary-dim: rgba(94, 236, 213, 0.08);
   --accent-gradient: linear-gradient(135deg, #6d9cff 0%, #5eecd5 100%);
 
-  /* Status */
-  --status-healthy: #5eecd5;
-  --status-healthy-dim: rgba(94, 236, 213, 0.12);
-  --status-warning: #ffc145;
-  --status-warning-dim: rgba(255, 193, 69, 0.12);
-  --status-critical: #ff6b6b;
-  --status-critical-dim: rgba(255, 107, 107, 0.12);
-  --status-unknown: #4e5567;
+  /* Status — vibrant neon-inspired */
+  --status-healthy: #4aedc2;
+  --status-healthy-dim: rgba(74, 237, 194, 0.1);
+  --status-warning: #ffb938;
+  --status-warning-dim: rgba(255, 185, 56, 0.1);
+  --status-critical: #ff5c6c;
+  --status-critical-dim: rgba(255, 92, 108, 0.08);
+  --status-unknown: #4a5268;
 
-  /* Log levels */
-  --log-error: #ff6b6b;
-  --log-warn: #ffc145;
+  /* Logs */
+  --log-error: #ff5c6c;
+  --log-warn: #ffb938;
   --log-info: #6d9cff;
-  --log-debug: #8b93a7;
+  --log-debug: #8892a8;
 
-  /* Charts */
+  /* Charts — gradient-inspired */
   --chart-line-1: #6d9cff;
-  --chart-line-2: #5eecd5;
-  --chart-line-3: #ffc145;
-  --chart-line-4: #ff6b6b;
-  --chart-fill: rgba(109, 156, 255, 0.06);
-  --chart-grid: rgba(255, 255, 255, 0.04);
+  --chart-line-2: #4aedc2;
+  --chart-line-3: #ffb938;
+  --chart-line-4: #ff5c6c;
+  --chart-fill: rgba(109, 156, 255, 0.04);
+  --chart-grid: rgba(255, 255, 255, 0.025);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 20px rgba(109, 156, 255, 0.15);
+  /* Shadows — deep layered */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 24px rgba(109, 156, 255, 0.2);
 
   /* Scrollbar */
   --scrollbar-track: transparent;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.08);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.15);
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-
-  /* Transitions */
-  --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  /* System */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition-fast: 0.1s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Backdrop */
+  --backdrop-blur: blur(20px);
+  --backdrop-blur-sm: blur(8px);
 }
