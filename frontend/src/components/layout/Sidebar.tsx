@@ -63,7 +63,12 @@ export function Sidebar() {
           }}
           title="Search resources (/)"
         >
-          <span className="sidebar__icon">🔍</span>
+          <span className="sidebar__icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{display:'block'}}>
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
+              <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+          </span>
           {!collapsed && <span className="sidebar__label">Search</span>}
         </button>
       </div>

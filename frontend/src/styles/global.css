@@ -252,9 +252,9 @@ input[type="text"],
 input[type="number"] {
   background: var(--bg-input);
   border: 1px solid var(--border-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
-  padding: 6px 12px;
+  padding: 7px 12px;
   font-size: 12px;
   font-family: inherit;
   transition: all var(--transition-fast);
@@ -667,7 +667,7 @@ button {
 
 .metrics-dashboard__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
@@ -1487,6 +1487,15 @@ select option {
   animation: fadeIn 0.12s ease;
 }
 
+.pod-drawer-overlay--closing {
+  animation: fadeOut 0.18s ease forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 .pod-drawer {
   position: absolute;
   right: 0;
@@ -1498,13 +1507,22 @@ select option {
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  animation: drawerSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: drawerSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   overflow-y: auto;
+}
+
+.pod-drawer-overlay--closing .pod-drawer {
+  animation: drawerSlideOut 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 @keyframes drawerSlideIn {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
+}
+
+@keyframes drawerSlideOut {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
 }
 
 .pod-drawer__header {
@@ -1717,7 +1735,13 @@ select option {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .golden-signals {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .golden-signal {

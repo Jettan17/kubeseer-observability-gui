@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ResourceNode } from '../../stores/cluster';
 import { useUIStore } from '../../stores/ui';
 import { useLogStore } from '../../stores/logs';
@@ -11,28 +11,36 @@ interface PodDetailDrawerProps {
 
 export function PodDetailDrawer({ resource, onClose }: PodDetailDrawerProps) {
   const setActiveView = useUIStore((s) => s.setActiveView);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 180); // Match animation duration
+  }, [onClose]);
 
   // Close on Escape
   useEffect(() => {
     if (!resource) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [resource, onClose]);
+  }, [resource, handleClose]);
 
   if (!resource) return null;
 
   const handleViewLogs = () => {
-    // Filter logs to this container/pod
     const logStore = useLogStore.getState();
     logStore.clear();
     logStore.appendLines(
       generateMockLogs(100).map((l) => ({ ...l, container: resource.name.split('-')[0] }))
     );
     setActiveView('logs');
-    onClose();
+    handleClose();
   };
 
   const statusColor = resource.status.state === 'healthy' ? 'var(--status-healthy)' :
@@ -48,14 +56,14 @@ export function PodDetailDrawer({ resource, onClose }: PodDetailDrawerProps) {
     : 'unknown';
 
   return (
-    <div className="pod-drawer-overlay" onClick={onClose}>
+    <div className={`pod-drawer-overlay ${isClosing ? 'pod-drawer-overlay--closing' : ''}`} onClick={handleClose}>
       <aside className="pod-drawer" onClick={(e) => e.stopPropagation()} role="complementary" aria-label="Resource details">
         <header className="pod-drawer__header">
           <div>
             <span className="pod-drawer__kind">{resource.kind}</span>
             <h2 className="pod-drawer__name">{resource.name}</h2>
           </div>
-          <button className="pod-drawer__close" onClick={onClose} aria-label="Close">✕</button>
+          <button className="pod-drawer__close" onClick={handleClose} aria-label="Close">✕</button>
         </header>
 
         <div className="pod-drawer__body">
@@ -144,10 +152,10 @@ export function PodDetailDrawer({ resource, onClose }: PodDetailDrawerProps) {
             <button className="pod-drawer__action-btn pod-drawer__action-btn--primary" onClick={handleViewLogs}>
               View Logs
             </button>
-            <button className="pod-drawer__action-btn" onClick={() => { setActiveView('metrics'); onClose(); }}>
+            <button className="pod-drawer__action-btn" onClick={() => { setActiveView('metrics'); handleClose(); }}>
               View Metrics
             </button>
-            <button className="pod-drawer__action-btn" onClick={() => { setActiveView('traces'); onClose(); }}>
+            <button className="pod-drawer__action-btn" onClick={() => { setActiveView('traces'); handleClose(); }}>
               View Traces
             </button>
           </section>
