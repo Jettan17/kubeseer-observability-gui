@@ -34,10 +34,6 @@ export function useKeyboardShortcuts() {
         case '4':
           setActiveView('traces');
           break;
-        case '/':
-          e.preventDefault();
-          document.querySelector<HTMLInputElement>('.search-bar__input')?.focus();
-          break;
         case '?':
           setShowHelp((prev) => !prev);
           break;
@@ -55,12 +51,11 @@ export function useKeyboardShortcuts() {
 }
 
 export const SHORTCUTS = [
-  { keys: ['⌘', 'K'], description: 'Open command palette' },
+  { keys: ['/'], description: 'Open resource search' },
   { keys: ['1'], description: 'Switch to Topology' },
   { keys: ['2'], description: 'Switch to Logs' },
   { keys: ['3'], description: 'Switch to Metrics' },
   { keys: ['4'], description: 'Switch to Traces' },
-  { keys: ['/'], description: 'Focus search bar' },
   { keys: ['?'], description: 'Toggle shortcuts help' },
   { keys: ['Esc'], description: 'Close overlays' },
 ];

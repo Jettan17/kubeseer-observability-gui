@@ -25,12 +25,16 @@ export function CommandPalette({ onResultClick }: CommandPaletteProps) {
   const resultsRef = useRef<HTMLDivElement>(null);
   const resources = useClusterStore((s) => s.resources);
 
-  // Global shortcut: Ctrl+K / ⌘K
+  // Global shortcut: / to open search overlay
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      // Don't fire when typing in inputs
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+
+      if (e.key === '/') {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
+        setIsOpen(true);
       }
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
@@ -139,7 +143,7 @@ export function CommandPalette({ onResultClick }: CommandPaletteProps) {
             onKeyDown={handleKeyDown}
             aria-label="Search resources"
           />
-          <kbd className="command-palette__kbd">ESC</kbd>
+          <kbd className="command-palette__kbd">/</kbd>
         </div>
         {results.length > 0 && (
           <div className="command-palette__results" role="listbox" ref={resultsRef}>

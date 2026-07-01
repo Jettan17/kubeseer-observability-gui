@@ -59,9 +59,9 @@ export function Sidebar() {
         <button
           className="sidebar__footer-btn"
           onClick={() => {
-            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' }));
           }}
-          title="Search resources (Ctrl+K)"
+          title="Search resources (/)"
         >
           <span className="sidebar__icon">🔍</span>
           {!collapsed && <span className="sidebar__label">Search</span>}
