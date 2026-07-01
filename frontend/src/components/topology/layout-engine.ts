@@ -104,13 +104,13 @@ export function computeLayout(
           })
           .strength(0.5)
       )
-      .force('charge', forceManyBody<LayoutNode>().strength((d) => d.namespace ? -200 : -80).distanceMax(300))
+      .force('charge', forceManyBody<LayoutNode>().strength((d) => d.namespace ? -350 : -50).distanceMax(350))
       .force('center', forceCenter(width / 2, height / 2))
       .force(
         'collision',
         forceCollide<LayoutNode>()
-          .radius((d) => d.radius + 6)
-          .strength(0.8)
+          .radius((d) => d.radius + 10)
+          .strength(0.9)
       )
       .force('namespace', () => namespaceForce(simulation.alpha()))
       .alphaDecay(0.02)
@@ -127,6 +127,18 @@ export function computeLayout(
     // For immediate results (no animation), run synchronously
     simulation.tick(300);
     simulation.stop();
+
+    // Post-layout: align hierarchy nodes (Node, Namespace) along the top
+    const hierarchyNodes = nodes.filter((n) => n.kind === 'Node' || n.kind === 'Namespace');
+    if (hierarchyNodes.length > 0) {
+      const topY = 50; // fixed Y near top
+      const spacing = width / (hierarchyNodes.length + 1);
+      hierarchyNodes.forEach((node, i) => {
+        node.x = spacing * (i + 1);
+        node.y = topY;
+      });
+    }
+
     resolve({ nodes, links });
   });
 }
