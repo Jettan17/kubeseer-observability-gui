@@ -131,12 +131,21 @@ export function computeLayout(
     // Post-layout: align hierarchy nodes (Node, Namespace) along the top
     const hierarchyNodes = nodes.filter((n) => n.kind === 'Node' || n.kind === 'Namespace');
     if (hierarchyNodes.length > 0) {
-      const topY = 50; // fixed Y near top
+      const topY = 50;
       const spacing = width / (hierarchyNodes.length + 1);
       hierarchyNodes.forEach((node, i) => {
         node.x = spacing * (i + 1);
         node.y = topY;
       });
+
+      // Push all other nodes down so they don't overlap the header row
+      const minWorkloadY = 140; // clear gap below header
+      const otherNodes = nodes.filter((n) => n.kind !== 'Node' && n.kind !== 'Namespace');
+      const currentMinY = Math.min(...otherNodes.map((n) => n.y ?? 999));
+      if (currentMinY < minWorkloadY) {
+        const shift = minWorkloadY - currentMinY;
+        otherNodes.forEach((n) => { if (n.y != null) n.y += shift; });
+      }
     }
 
     resolve({ nodes, links });
