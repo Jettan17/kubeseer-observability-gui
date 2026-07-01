@@ -6,7 +6,7 @@ import { TopologyControls } from './components/topology/TopologyControls';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, HealthBar } from './components/common';
+import { ClusterSelector, SearchBar, HealthBar, ThemeToggle } from './components/common';
 import { useUIStore } from './stores/ui';
 import { useClusterStore } from './stores/cluster';
 import { useLogStore } from './stores/logs';
@@ -120,6 +120,7 @@ function App() {
             unknown={healthSummary.unknown}
             onClick={(status) => setTopoFilters({ status })}
           />
+          <ThemeToggle />
         </header>
         <div className="view-container">
           {activeView === 'topology' && (
