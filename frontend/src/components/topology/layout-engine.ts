@@ -82,8 +82,8 @@ export function computeLayout(
         if (!center || center.count < 2) continue;
         const cx = center.x / center.count;
         const cy = center.y / center.count;
-        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.15;
-        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.15;
+        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.25;
+        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.25;
       }
     }
 
@@ -139,7 +139,7 @@ export function computeLayout(
       });
 
       // Push all other nodes down so they don't overlap the header row
-      const minWorkloadY = 140; // clear gap below header
+      const minWorkloadY = 200; // large clear gap below header
       const otherNodes = nodes.filter((n) => n.kind !== 'Node' && n.kind !== 'Namespace');
       const currentMinY = Math.min(...otherNodes.map((n) => n.y ?? 999));
       if (currentMinY < minWorkloadY) {
