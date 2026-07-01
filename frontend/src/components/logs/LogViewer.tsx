@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useLogStore, LogLine } from '../../stores/logs';
+import { useUIStore } from '../../stores/ui';
 import { LogSearch } from './LogSearch';
 
 const LINE_HEIGHT = 22;
@@ -121,6 +122,17 @@ interface LogLineRowProps {
 
 function LogLineRow({ line, highlight }: LogLineRowProps) {
   const levelClass = line.level ? `log-line--${line.level}` : '';
+  const setActiveView = useUIStore((s) => s.setActiveView);
+
+  // Detect trace IDs in message (common patterns)
+  const traceIdMatch = line.message.match(/trace[_-]?id[=: ]+([a-f0-9-]{16,36})/i)
+    || line.message.match(/\b([a-f0-9]{32})\b/)
+    || line.message.match(/X-Trace-Id[=: ]+([a-f0-9-]+)/i);
+
+  const handleTraceClick = (_traceId: string) => {
+    // Navigate to traces view (in real app would filter to this trace)
+    setActiveView('traces');
+  };
 
   return (
     <div className={`log-line ${levelClass}`} style={{ height: LINE_HEIGHT }}>
@@ -128,6 +140,15 @@ function LogLineRow({ line, highlight }: LogLineRowProps) {
       <span className="log-line__container">{line.container}</span>
       <span className="log-line__message">
         {highlight ? highlightText(line.message, highlight) : line.message}
+        {traceIdMatch && (
+          <button
+            className="log-line__trace-link"
+            onClick={() => handleTraceClick(traceIdMatch[1])}
+            title={`View trace ${traceIdMatch[1]}`}
+          >
+            🔗 trace
+          </button>
+        )}
       </span>
     </div>
   );

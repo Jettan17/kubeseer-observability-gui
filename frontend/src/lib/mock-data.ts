@@ -129,6 +129,9 @@ export function generateMockLogs(count = 200): LogLine[] {
     'ERROR: Unhandled exception in handler: NullPointerException',
     'DEBUG: Goroutine count: 1247',
     'Graceful shutdown initiated, draining connections...',
+    'Request completed trace_id=4a3b2c1d5e6f7a8b9c0d1e2f3a4b5c6d duration=142ms',
+    'Span started trace_id=7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c service=payment-service',
+    'ERROR: Timeout waiting for response trace_id=1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
   ];
 
   const containers = ['api-gateway', 'user-service', 'payment-service', 'envoy-proxy', 'fluent-bit'];
