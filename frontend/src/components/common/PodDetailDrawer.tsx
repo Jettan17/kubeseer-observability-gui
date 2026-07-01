@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ResourceNode } from '../../stores/cluster';
 import { useUIStore } from '../../stores/ui';
 import { useLogStore } from '../../stores/logs';
@@ -10,6 +11,16 @@ interface PodDetailDrawerProps {
 
 export function PodDetailDrawer({ resource, onClose }: PodDetailDrawerProps) {
   const setActiveView = useUIStore((s) => s.setActiveView);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!resource) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [resource, onClose]);
 
   if (!resource) return null;
 

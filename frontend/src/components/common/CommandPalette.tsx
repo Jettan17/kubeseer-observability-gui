@@ -28,16 +28,20 @@ export function CommandPalette({ onResultClick }: CommandPaletteProps) {
   // Global shortcut: / to open search overlay
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // Don't fire when typing in inputs
+      // Don't fire when typing in inputs (except Escape always works)
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
+
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        return;
+      }
+
+      if (isInput) return;
 
       if (e.key === '/') {
         e.preventDefault();
         setIsOpen(true);
-      }
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
       }
     };
     window.addEventListener('keydown', handler);
