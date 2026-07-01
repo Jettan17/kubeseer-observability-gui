@@ -27,10 +27,10 @@ interface TooltipState {
 
 // Concrete colors for canvas (CSS vars don't work in canvas context)
 const STATUS_COLORS: Record<string, string> = {
-  healthy: '#5eecd5',
-  warning: '#ffc145',
-  critical: '#ff6b6b',
-  unknown: '#4e5567',
+  healthy: '#6ccfb5',
+  warning: '#e8b84a',
+  critical: '#e86b73',
+  unknown: '#4a5268',
 };
 
 // Colors per resource kind for visual distinction
@@ -41,8 +41,8 @@ const KIND_COLORS: Record<string, string> = {
   ReplicaSet: '#818cf8',
   StatefulSet: '#c084fc',
   DaemonSet: '#e879f9',
-  Service: '#fbbf24',
-  Pod: '#5eecd5',
+  Service: '#f472b6',
+  Pod: '#6ccfb5',
   Container: '#67e8f9',
 };
 

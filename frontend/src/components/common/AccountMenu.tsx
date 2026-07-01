@@ -50,11 +50,9 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
       </button>
       <button className="account-menu__item">
         <span>🔑</span> API Keys
-        <span className="account-menu__hint">Programmatic access</span>
       </button>
       <button className="account-menu__item">
         <span>📋</span> Audit Log
-        <span className="account-menu__hint">Activity history</span>
       </button>
       <div className="account-menu__divider" />
       <button className="account-menu__item account-menu__item--danger">

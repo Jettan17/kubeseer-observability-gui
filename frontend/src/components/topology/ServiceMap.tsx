@@ -188,8 +188,8 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
         if (node.x == null || node.y == null) continue;
         const r = 32;
 
-        const fillColor = node.errorRate > 4 ? '#ff5c6c' :
-          node.errorRate > 2 ? '#ffb938' : '#4aedc2';
+        const fillColor = node.errorRate > 4 ? '#d4636b' :
+          node.errorRate > 2 ? '#d4a83e' : '#5cb8a0';
 
         ctx.save();
 

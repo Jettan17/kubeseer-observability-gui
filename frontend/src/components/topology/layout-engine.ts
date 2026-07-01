@@ -104,7 +104,7 @@ export function computeLayout(
           })
           .strength(0.4)
       )
-      .force('charge', forceManyBody().strength(-400).distanceMax(500))
+      .force('charge', forceManyBody<LayoutNode>().strength((d) => d.namespace ? -400 : -150).distanceMax(500))
       .force('center', forceCenter(width / 2, height / 2))
       .force(
         'collision',
