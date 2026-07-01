@@ -1,5 +1,5 @@
 {
-  "name": "kubeobserve-frontend",
+  "name": "kubeseer-frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",

@@ -1,12 +1,12 @@
-# KubeObserve
+# KubeSeer
 
 A high-performance, secure Kubernetes observability GUI built with Rust and React.
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 
-## What is KubeObserve?
+## What is KubeSeer?
 
-KubeObserve is an open-source, full-stack Kubernetes observability tool that provides:
+KubeSeer is an open-source, full-stack Kubernetes observability tool that provides:
 
 - **Visual cluster topology** — interactive graph of nodes, deployments, services, and pods
 - **Real-time log streaming** — click any pod to stream its logs with search and filtering
@@ -24,13 +24,13 @@ All packaged in a single binary with zero external dependencies.
 cargo build --release
 
 # Run (auto-opens browser)
-./target/release/kubeobserve
+./target/release/KubeSeer
 
 # Or specify options
-./target/release/kubeobserve --port 8080 --no-open
+./target/release/KubeSeer --port 8080 --no-open
 ```
 
-KubeObserve reads your `~/.kube/config` automatically. No additional configuration needed.
+KubeSeer reads your `~/.kube/config` automatically. No additional configuration needed.
 
 ## Architecture
 
@@ -112,15 +112,15 @@ cd frontend && pnpm run dev
 
 | Flag | Env Var | Default | Description |
 |------|---------|---------|-------------|
-| `--host` | `KUBEOBSERVE_HOST` | `127.0.0.1` | Bind address |
-| `--port` | `KUBEOBSERVE_PORT` | `0` (random) | Bind port |
+| `--host` | `KubeSeer_HOST` | `127.0.0.1` | Bind address |
+| `--port` | `KubeSeer_PORT` | `0` (random) | Bind port |
 | `--kubeconfig` | `KUBECONFIG` | `~/.kube/config` | Kubeconfig path |
-| `--tls` | `KUBEOBSERVE_TLS` | `false` | Enable TLS |
-| `--tls-cert` | `KUBEOBSERVE_TLS_CERT` | - | TLS cert path |
-| `--tls-key` | `KUBEOBSERVE_TLS_KEY` | - | TLS key path |
-| `--session-timeout-hours` | `KUBEOBSERVE_SESSION_TIMEOUT` | `8` | Session TTL |
-| `--no-open` | `KUBEOBSERVE_NO_OPEN` | `false` | Don't open browser |
-| `--log-level` | `KUBEOBSERVE_LOG_LEVEL` | `info` | Log level |
+| `--tls` | `KubeSeer_TLS` | `false` | Enable TLS |
+| `--tls-cert` | `KubeSeer_TLS_CERT` | - | TLS cert path |
+| `--tls-key` | `KubeSeer_TLS_KEY` | - | TLS key path |
+| `--session-timeout-hours` | `KubeSeer_SESSION_TIMEOUT` | `8` | Session TTL |
+| `--no-open` | `KubeSeer_NO_OPEN` | `false` | Don't open browser |
+| `--log-level` | `KubeSeer_LOG_LEVEL` | `info` | Log level |
 
 ## License
 

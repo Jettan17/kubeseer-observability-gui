@@ -2,7 +2,7 @@
 //!
 //! Tests resource graph operations, consistency properties, and performance.
 
-use kubeobserve::cluster::resource_graph::*;
+use kubeseer::cluster::resource_graph::*;
 use std::collections::BTreeMap;
 
 fn make_node(uid: &str, name: &str, kind: ResourceKind, parent: Option<&str>) -> ResourceNode {

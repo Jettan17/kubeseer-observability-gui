@@ -1,6 +1,6 @@
-# Contributing to KubeObserve
+# Contributing to KubeSeer
 
-Thank you for considering contributing to KubeObserve! This document outlines the process for contributing.
+Thank you for considering contributing to KubeSeer! This document outlines the process for contributing.
 
 ## Development Setup
 
@@ -14,8 +14,8 @@ Thank you for considering contributing to KubeObserve! This document outlines th
 
 ```bash
 # Clone the repo
-git clone https://github.com/kubeobserve/kubeobserve.git
-cd kubeobserve
+git clone https://github.com/KubeSeer/KubeSeer.git
+cd KubeSeer
 
 # Install frontend dependencies
 cd frontend && pnpm install && cd ..

@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in KubeObserve, please report it responsibly.
+If you discover a security vulnerability in KubeSeer, please report it responsibly.
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, email: security@kubeobserve.dev
+Instead, email: security@KubeSeer.dev
 
 ### What to include
 

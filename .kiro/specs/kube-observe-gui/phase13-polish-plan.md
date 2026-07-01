@@ -42,21 +42,38 @@ Post-MVP polish to elevate from "functional demo" to "awards-worthy product." Pr
 
 ## Priority 2: Technical Differentiation
 
-### 13.6 Log-to-Trace Correlation
+### 13.6 Golden Signals Dashboard
+- Add dedicated "Signals" section to metrics view showing all 4 golden signals:
+  - **Latency**: p50/p95/p99 request duration per service (aggregated from trace spans)
+  - **Traffic**: requests/sec per service (counted from trace span frequency)
+  - **Errors**: error rate = error spans / total spans per service (with trending)
+  - **Saturation**: existing CPU/memory vs limits (already implemented)
+- Visual layout: 4 cards in a row, each with sparkline + current value + trend arrow
+- Color thresholds: green < p50, yellow > p75, red > p95 of historical range
+- _Why:_ This is the standard SRE monitoring framework. Shows we understand observability theory, not just "put charts on screen."
+
+### 13.7 Log-to-Trace Correlation
 - Detect trace IDs in log messages (regex: common formats like `trace_id=xxx`, `X-Trace-Id`, OpenTelemetry format)
 - Render as clickable links in log viewer
 - Click → jumps to Trace view, selects that trace, shows waterfall
 - Reverse: trace span detail shows "Related Logs" section
 - _Why:_ Nobody does this seamlessly. Connecting the observability pillars is the dream.
 
-### 13.7 Deployment Timeline
+### 13.8 Deployment Timeline
 - Horizontal timeline bar below topology (or as overlay)
 - Shows deployment events (rollout start, completion, rollback)
 - Correlated with metrics: "CPU spiked 2min after this deploy"
 - Click a deployment event to see the diff (old vs new replica count, image tag)
 - _Why:_ "What changed?" is the #1 debugging question. This answers it visually.
 
-### 13.8 Keyboard Shortcuts & Help Overlay
+### 13.8 Deployment Timeline
+- Horizontal timeline bar below topology (or as overlay)
+- Shows deployment events (rollout start, completion, rollback)
+- Correlated with metrics: "CPU spiked 2min after this deploy"
+- Click a deployment event to see the diff (old vs new replica count, image tag)
+- _Why:_ "What changed?" is the #1 debugging question. This answers it visually.
+
+### 13.9 Keyboard Shortcuts & Help Overlay
 - `1-4` switch views, `/` focus search, `⌘K` command palette
 - `Esc` close panels/modals
 - `?` shows overlay listing all shortcuts
@@ -106,3 +123,38 @@ Post-MVP polish to elevate from "functional demo" to "awards-worthy product." Pr
 8. **13.7** Deployment Timeline (3-4hr) — debugging UX
 9. **13.9** Service Dependency Map (4-6hr) — wow factor
 10. **13.10** AI Assistant (8hr+) — stretch goal
+
+
+---
+
+## Pre-Phase 13: Backend Wiring TODOs
+
+These are leftover integration tasks from the core build that must be completed before/alongside Phase 13 features:
+
+### Backend → Frontend Wiring
+- [ ] Wire `ClusterManager` to REST `/api/v1/contexts` endpoint (return real kubeconfig contexts)
+- [ ] Wire `ClusterManager.connect()` to `/api/v1/contexts/{name}/connect` endpoint
+- [ ] Wire `ResourceWatcher` to WebSocket — broadcast `GraphPatch` events to subscribed clients
+- [ ] Wire `ResourceWatcher.snapshot()` to `/api/v1/clusters/{id}/resources` endpoint
+- [ ] Wire pod log streaming (kube-rs log API) to WebSocket `log_batch` messages
+- [ ] Wire metrics polling (K8s Metrics API) to `/api/v1/clusters/{id}/metrics/...` endpoint
+- [ ] Implement actual Prometheus query client for historical metrics
+- [ ] Wire trace backend client (Jaeger/OTel) to `/api/v1/clusters/{id}/traces` endpoint
+
+### Security Wiring
+- [ ] Implement actual TLS listener bind in `main.rs` when `--tls` is set
+- [ ] Implement OIDC authentication flow (redirect → token exchange → validate → session)
+- [ ] Wire `auth_middleware` into router for non-localhost mode
+- [ ] Add session cleanup background task (periodic `cleanup_expired()`)
+
+### Frontend → Backend Wiring
+- [ ] Replace mock data in `App.tsx` with actual WebSocket subscription
+- [ ] `useWebSocket` hook subscribes to "topology" channel → applies patches to cluster store
+- [ ] `useWebSocket` hook subscribes to "logs" channel → appends to log store
+- [ ] REST calls for metrics when time window changes (instead of mock generator)
+- [ ] REST calls for traces when service/duration filter changes
+
+### Operational
+- [ ] Remove `frontend/dist/` from git (it's in `.gitignore` but was committed for rust-embed during dev)
+- [ ] Add `build.rs` to compile frontend automatically before Rust build
+- [ ] Wire Cargo `[build]` script or Makefile for single `make release` command

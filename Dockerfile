@@ -1,4 +1,4 @@
-# Multi-stage build for KubeObserve
+# Multi-stage build for kubeseer
 # Produces a minimal container for shared deployment mode
 
 # Stage 1: Build frontend
@@ -22,13 +22,13 @@ RUN cargo build --release
 # Stage 3: Minimal runtime image
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY --from=backend-builder /app/target/release/kubeobserve /usr/local/bin/kubeobserve
+COPY --from=backend-builder /app/target/release/kubeseer /usr/local/bin/kubeseer
 
 # Non-root user
-RUN useradd -r -s /bin/false kubeobserve
-USER kubeobserve
+RUN useradd -r -s /bin/false kubeseer
+USER kubeseer
 
 EXPOSE 8080
 
-ENTRYPOINT ["kubeobserve"]
+ENTRYPOINT ["kubeseer"]
 CMD ["--host", "0.0.0.0", "--port", "8080", "--tls", "--no-open"]

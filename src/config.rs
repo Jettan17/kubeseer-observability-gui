@@ -2,18 +2,18 @@ use clap::Parser;
 use std::net::IpAddr;
 use std::path::PathBuf;
 
-/// KubeObserve — A high-performance Kubernetes observability GUI
+/// KubeSeer — A high-performance Kubernetes observability GUI
 #[derive(Parser, Debug, Clone)]
-#[command(name = "kubeobserve", version, about, long_about = None)]
+#[command(name = "KubeSeer", version, about, long_about = None)]
 pub struct Config {
     /// Address to bind the HTTP server to.
     /// Defaults to 127.0.0.1 (localhost only) for security.
-    #[arg(long, env = "KUBEOBSERVE_HOST", default_value = "127.0.0.1")]
+    #[arg(long, env = "KubeSeer_HOST", default_value = "127.0.0.1")]
     pub host: IpAddr,
 
     /// Port to bind the HTTP server to.
     /// Use 0 for a random available port.
-    #[arg(short, long, env = "KUBEOBSERVE_PORT", default_value_t = 0)]
+    #[arg(short, long, env = "KubeSeer_PORT", default_value_t = 0)]
     pub port: u16,
 
     /// Path to kubeconfig file.
@@ -22,35 +22,35 @@ pub struct Config {
     pub kubeconfig: Option<PathBuf>,
 
     /// Enable TLS (required when binding to non-localhost addresses).
-    #[arg(long, env = "KUBEOBSERVE_TLS")]
+    #[arg(long, env = "KubeSeer_TLS")]
     pub tls: bool,
 
     /// Path to TLS certificate file (PEM format).
-    #[arg(long, env = "KUBEOBSERVE_TLS_CERT", requires = "tls")]
+    #[arg(long, env = "KubeSeer_TLS_CERT", requires = "tls")]
     pub tls_cert: Option<PathBuf>,
 
     /// Path to TLS private key file (PEM format).
-    #[arg(long, env = "KUBEOBSERVE_TLS_KEY", requires = "tls")]
+    #[arg(long, env = "KubeSeer_TLS_KEY", requires = "tls")]
     pub tls_key: Option<PathBuf>,
 
     /// Session timeout in hours.
-    #[arg(long, env = "KUBEOBSERVE_SESSION_TIMEOUT", default_value_t = 8)]
+    #[arg(long, env = "KubeSeer_SESSION_TIMEOUT", default_value_t = 8)]
     pub session_timeout_hours: u64,
 
     /// Maximum number of simultaneous cluster connections.
-    #[arg(long, env = "KUBEOBSERVE_MAX_CLUSTERS", default_value_t = 10)]
+    #[arg(long, env = "KubeSeer_MAX_CLUSTERS", default_value_t = 10)]
     pub max_clusters: usize,
 
     /// Log level (trace, debug, info, warn, error).
-    #[arg(long, env = "KUBEOBSERVE_LOG_LEVEL", default_value = "info")]
+    #[arg(long, env = "KubeSeer_LOG_LEVEL", default_value = "info")]
     pub log_level: String,
 
     /// Disable automatic browser opening on startup.
-    #[arg(long, env = "KUBEOBSERVE_NO_OPEN")]
+    #[arg(long, env = "KubeSeer_NO_OPEN")]
     pub no_open: bool,
 
     /// Optional TOML configuration file path.
-    #[arg(long, env = "KUBEOBSERVE_CONFIG")]
+    #[arg(long, env = "KubeSeer_CONFIG")]
     pub config_file: Option<PathBuf>,
 }
 

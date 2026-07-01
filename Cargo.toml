@@ -1,10 +1,10 @@
 [package]
-name = "kubeobserve"
+name = "kubeseer"
 version = "0.1.0"
 edition = "2021"
 description = "A high-performance, secure Kubernetes observability GUI"
 license = "Apache-2.0"
-repository = "https://github.com/kubeobserve/kubeobserve"
+repository = "https://github.com/kubeseer/kubeseer"
 readme = "README.md"
 keywords = ["kubernetes", "observability", "monitoring", "dashboard", "gui"]
 categories = ["command-line-utilities", "visualization", "web-programming"]

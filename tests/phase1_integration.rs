@@ -8,7 +8,7 @@ use tower::ServiceExt;
 
 /// Helper to build a test app router.
 fn test_app() -> axum::Router {
-    let config = kubeobserve::config::Config {
+    let config = kubeseer::config::Config {
         host: "127.0.0.1".parse().unwrap(),
         port: 0,
         kubeconfig: None,
@@ -21,7 +21,7 @@ fn test_app() -> axum::Router {
         no_open: true,
         config_file: None,
     };
-    kubeobserve::api::build_router(&config)
+    kubeseer::api::build_router(&config)
 }
 
 #[tokio::test]

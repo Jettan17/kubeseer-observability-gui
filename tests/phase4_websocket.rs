@@ -3,7 +3,7 @@
 //! Tests message protocol serialization, subscription management, and
 //! WebSocket connection behavior.
 
-use kubeobserve::api::websocket::{ClientMessage, ServerMessage};
+use kubeseer::api::websocket::{ClientMessage, ServerMessage};
 
 // --- Message Serialization/Deserialization ---
 

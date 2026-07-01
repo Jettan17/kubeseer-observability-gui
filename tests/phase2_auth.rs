@@ -2,10 +2,10 @@
 //!
 //! Tests kubeconfig parsing, session management, middleware auth flow.
 
-use kubeobserve::auth::kubeconfig::{
+use kubeseer::auth::kubeconfig::{
     list_contexts, resolve_context, AuthMethod, Kubeconfig,
 };
-use kubeobserve::auth::session::SessionStore;
+use kubeseer::auth::session::SessionStore;
 
 // --- Kubeconfig tests ---
 

@@ -1,4 +1,4 @@
-use kubeobserve::config::Config;
+use kubeseer::config::Config;
 use anyhow::Result;
 use tracing_subscriber::EnvFilter;
 
@@ -15,11 +15,11 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    tracing::info!("KubeObserve v{}", env!("CARGO_PKG_VERSION"));
+    tracing::info!("kubeseer v{}", env!("CARGO_PKG_VERSION"));
     tracing::info!("Binding to {}:{}", config.host, config.port);
 
     // Build the Axum application
-    let app = kubeobserve::api::build_router(&config);
+    let app = kubeseer::api::build_router(&config);
 
     // Bind the listener
     let addr = std::net::SocketAddr::new(config.host, config.port);

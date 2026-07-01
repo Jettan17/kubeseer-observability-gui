@@ -23,7 +23,7 @@ export function Sidebar() {
         >
           {collapsed ? '▶' : '◀'}
         </button>
-        {!collapsed && <span className="sidebar__title">KubeObserve</span>}
+        {!collapsed && <span className="sidebar__title">KubeSeer</span>}
       </div>
       <nav className="sidebar__nav" role="navigation" aria-label="Main navigation">
         {navItems.map((item) => (

@@ -65,7 +65,7 @@ fn extract_token(request: &Request) -> Option<String> {
         if let Ok(cookies) = cookie_header.to_str() {
             for cookie in cookies.split(';') {
                 let cookie = cookie.trim();
-                if let Some(token) = cookie.strip_prefix("kubeobserve_session=") {
+                if let Some(token) = cookie.strip_prefix("kubeseer_session=") {
                     return Some(token.to_string());
                 }
             }
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn test_extract_token_from_cookie() {
         let req = HttpRequest::builder()
-            .header("Cookie", "other=val; kubeobserve_session=session-abc; foo=bar")
+            .header("Cookie", "other=val; kubeseer_session=session-abc; foo=bar")
             .body(Body::empty())
             .unwrap();
         assert_eq!(extract_token(&req), Some("session-abc".to_string()));
@@ -109,7 +109,7 @@ mod tests {
     fn test_extract_token_bearer_priority_over_cookie() {
         let req = HttpRequest::builder()
             .header("Authorization", "Bearer bearer-token")
-            .header("Cookie", "kubeobserve_session=cookie-token")
+            .header("Cookie", "kubeseer_session=cookie-token")
             .body(Body::empty())
             .unwrap();
         // Bearer takes priority
