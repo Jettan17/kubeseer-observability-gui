@@ -974,8 +974,8 @@ button {
   bottom: 20px;
   left: 20px;
   display: flex;
-  gap: 16px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 12px 18px;
   background: var(--bg-glass);
   backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--border-primary);
@@ -987,10 +987,31 @@ button {
   box-shadow: var(--shadow-md);
 }
 
+.topology-legend__group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topology-legend__title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-right: 2px;
+}
+
+.topology-legend__divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-primary);
+}
+
 .topology-legend__item {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
 }
 
 /* === Dropdown Styling (Custom Component) === */

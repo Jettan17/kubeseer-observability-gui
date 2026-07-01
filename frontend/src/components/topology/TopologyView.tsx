@@ -62,10 +62,10 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: bo
 
   ctx.save();
 
-  // Outer glow (always on, stronger when hovered)
+  // Outer glow (subtle, slightly more on hover)
   ctx.shadowColor = fillColor;
-  ctx.shadowBlur = isHovered ? 20 : 8;
-  ctx.globalAlpha = isHovered ? 1 : 0.9;
+  ctx.shadowBlur = isHovered ? 12 : 4;
+  ctx.globalAlpha = isHovered ? 1 : 0.92;
 
   ctx.beginPath();
 
@@ -121,7 +121,7 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, isHovered: bo
   ctx.fillText(label, x, y);
 
   // Name below (with background pill for readability)
-  const name = truncate(node.name, 12);
+  const name = truncate(node.name, 16);
   ctx.font = '10px Inter, sans-serif';
   const textWidth = ctx.measureText(name).width;
   ctx.fillStyle = 'rgba(6, 7, 11, 0.7)';
@@ -457,10 +457,20 @@ export function TopologyView({ filters, onNodeClick }: TopologyViewProps) {
         <PodTooltip x={tooltip.x} y={tooltip.y} node={tooltip.node} />
       )}
       <div className="topology-legend">
-        <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Pod, width: 10, height: 10, borderRadius: '50%', display: 'inline-block' }} /> Pod</span>
-        <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Deployment, width: 10, height: 10, borderRadius: '2px', display: 'inline-block', transform: 'rotate(45deg)' }} /> Deploy</span>
-        <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Service, width: 10, height: 10, borderRadius: '2px', display: 'inline-block', transform: 'rotate(45deg)' }} /> Service</span>
-        <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Node, width: 10, height: 10, borderRadius: '3px', display: 'inline-block' }} /> Node</span>
+        <div className="topology-legend__group">
+          <span className="topology-legend__title">Kind</span>
+          <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Pod, width: 10, height: 10, borderRadius: '50%', display: 'inline-block' }} /> Pod</span>
+          <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Deployment, width: 10, height: 10, borderRadius: '2px', display: 'inline-block', clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} /> Deploy</span>
+          <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Service, width: 10, height: 10, borderRadius: '2px', display: 'inline-block', clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} /> Service</span>
+          <span className="topology-legend__item"><span style={{ background: KIND_COLORS.Node, width: 10, height: 10, borderRadius: '3px', display: 'inline-block' }} /> Node</span>
+        </div>
+        <div className="topology-legend__divider" />
+        <div className="topology-legend__group">
+          <span className="topology-legend__title">Status</span>
+          <span className="topology-legend__item"><span style={{ background: STATUS_COLORS.healthy, width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} /> Healthy</span>
+          <span className="topology-legend__item"><span style={{ background: STATUS_COLORS.warning, width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} /> Warning</span>
+          <span className="topology-legend__item"><span style={{ background: STATUS_COLORS.critical, width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} /> Critical</span>
+        </div>
       </div>
     </div>
   );

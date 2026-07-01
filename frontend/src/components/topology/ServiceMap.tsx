@@ -186,23 +186,33 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
       // Draw service nodes
       for (const node of nodes) {
         if (node.x == null || node.y == null) continue;
-        const r = 28;
+        const r = 30;
 
-        // Node circle
+        const fillColor = node.errorRate > 4 ? '#ff5c6c' :
+          node.errorRate > 2 ? '#ffb938' : '#4aedc2';
+
+        // Glow
+        ctx.shadowColor = fillColor;
+        ctx.shadowBlur = 6;
+
+        // Gradient fill (sphere effect)
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        const fillColor = node.errorRate > 4 ? '#ff6b6b' :
-          node.errorRate > 2 ? '#ffc145' : '#5eecd5';
-        ctx.fillStyle = fillColor;
-        ctx.globalAlpha = 0.15;
+        const grad = ctx.createRadialGradient(node.x - r * 0.3, node.y - r * 0.3, 0, node.x, node.y, r * 1.2);
+        grad.addColorStop(0, fillColor + '40');
+        grad.addColorStop(0.7, fillColor + '18');
+        grad.addColorStop(1, fillColor + '08');
+        ctx.fillStyle = grad;
         ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = fillColor;
-        ctx.lineWidth = 2;
+
+        // Border
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = fillColor + '60';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
         // Service name
-        ctx.fillStyle = '#f0f2f8';
+        ctx.fillStyle = '#eef1f8';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -211,7 +221,7 @@ export function ServiceMap({ clusterId }: ServiceMapProps) {
 
         // Requests/sec below
         ctx.font = '9px Inter, sans-serif';
-        ctx.fillStyle = '#8b93a7';
+        ctx.fillStyle = '#8892a8';
         ctx.fillText(`${node.requestsPerSec} req/s`, node.x, node.y + 10);
       }
 

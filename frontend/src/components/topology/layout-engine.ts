@@ -95,21 +95,21 @@ export function computeLayout(
           .distance((link) => {
             switch (link.type) {
               case 'ownership':
-                return 60;
+                return 90;
               case 'network':
-                return 120;
+                return 150;
               default:
-                return 80;
+                return 110;
             }
           })
-          .strength(0.5)
+          .strength(0.4)
       )
-      .force('charge', forceManyBody().strength(-200).distanceMax(300))
+      .force('charge', forceManyBody().strength(-300).distanceMax(400))
       .force('center', forceCenter(width / 2, height / 2))
       .force(
         'collision',
         forceCollide<LayoutNode>()
-          .radius((d) => d.radius + 4)
+          .radius((d) => d.radius + 12)
           .strength(0.8)
       )
       .force('namespace', () => namespaceForce(simulation.alpha()))
