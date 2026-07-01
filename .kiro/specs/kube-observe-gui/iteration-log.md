@@ -128,3 +128,72 @@ Tracks post-implementation refinements, bug fixes, and UX improvements made afte
 | **Total** | **79** | **84** | ✅ |
 
 All 163 tests pass. 0 compiler warnings. Server verified serving full frontend at localhost:9090.
+
+### Iteration 9: Phase 13 Polish Features
+**Date:** 2026-07-01
+**Changes:**
+- 13.3: Theme toggle (dark/light/system) with animated icon
+- 13.1: Command palette (⌘K) with fuzzy search, keyboard navigation, LRU recent
+- 13.4: Toast notifications (30s interval, severity colors, auto-dismiss)
+- 13.8: Keyboard shortcuts (1-4 views, /, ?, Esc) + help overlay
+- 13.2: Pod detail drawer (slide-out panel, status/metrics/labels/actions)
+- 13.6: Golden signals dashboard (latency/traffic/errors/saturation + sparklines)
+- 13.7: Log-to-trace correlation (regex trace ID detection, clickable links)
+- 13.5: Namespace swimlanes (colored background regions in topology)
+- 13.8: Deployment timeline (vertical event timeline below metrics)
+- 13.9: Service dependency map (force-directed graph with traffic flow arrows)
+
+**Outcome:** All 10 polish features implemented, 84 frontend tests pass
+
+### Iteration 10: UX Feedback Round 1
+**Date:** 2026-07-01
+**Trigger:** User testing revealed cursor misalignment, chart colors invisible, traces blank
+**Changes:**
+- Fixed topology zoom to use cursor as anchor point
+- Fixed tooltip not disappearing when drawer opens
+- Added pan/zoom to service map canvas
+- Golden signals now regenerate per time window (different seeds)
+- Traces auto-select first trace on navigation (no blank panel)
+- Toasts reduced to 30s intervals (was 8s, too noisy)
+
+### Iteration 11: UX Feedback Round 2
+**Date:** 2026-07-01
+**Trigger:** Health indicators confusing on non-topology views, search z-index bug
+**Changes:**
+- Moved health bar from global header into topology sub-header
+- Health click now toggles filter (click again to clear)
+- Search dropdown z-index fixed to 1000 (was hidden behind content)
+- All mock clusters show connected status
+- Sidebar shows shortcut badges and footer buttons (Shortcuts, Commands)
+
+### Iteration 12: UX Feedback Round 3
+**Date:** 2026-07-01
+**Trigger:** Search not navigable by keyboard, command palette namespace selection broken
+**Changes:**
+- Search bar now supports arrow key navigation with scroll-into-view
+- Selected result highlighted with accent background
+- Command palette: removed theme settings, reordered (namespaces → navigation → resources)
+- Selecting a namespace in command palette now dispatches filter and switches to topology
+- Resources in command palette filter topology by name search
+- Event-based filter dispatch (CustomEvent) for cross-component communication
+
+### Remaining TODO Items
+
+**Phase 13 remaining (stretch goals):**
+- 13.10: AI Troubleshooting Assistant (8hr+ effort)
+- Namespace swimlane collapse/expand (enhancement)
+
+**Backend wiring (production readiness):**
+- Wire ClusterManager to REST endpoints
+- Wire ResourceWatcher to WebSocket broadcast
+- Wire pod log streaming to WebSocket
+- Implement Prometheus query client
+- Implement TLS listener bind
+- Implement OIDC authentication flow
+- Replace mock data sources with REST/WebSocket calls
+- Build automation (frontend → Rust embed pipeline)
+
+**Known minor issues:**
+- Log-to-trace: trace IDs in logs don't map to specific mock traces (would work with real backend)
+- Service map: no hover tooltips on nodes (would show detailed stats)
+- Deployment timeline: static mock data (would come from K8s Deployment watch events)

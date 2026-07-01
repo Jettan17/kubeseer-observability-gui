@@ -4,14 +4,14 @@ import { useClusterStore } from '../../stores/cluster';
 
 interface CommandItem {
   id: string;
-  category: 'recent' | 'navigate' | 'resource' | 'action';
+  category: 'recent' | 'navigate' | 'namespace' | 'resource';
   label: string;
   description?: string;
   icon?: string;
   action: () => void;
 }
 
-// LRU recent commands (persisted in memory)
+// LRU recent commands
 const recentCommandIds: string[] = [];
 const MAX_RECENT = 5;
 
@@ -22,6 +22,11 @@ function addToRecent(id: string) {
   if (recentCommandIds.length > MAX_RECENT) recentCommandIds.pop();
 }
 
+// Event-based filter dispatch (consumed by App.tsx)
+export function dispatchTopoFilter(filter: { namespace?: string; search?: string }) {
+  window.dispatchEvent(new CustomEvent('kubeseer:topo-filter', { detail: filter }));
+}
+
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -29,25 +34,20 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const setActiveView = useUIStore((s) => s.setActiveView);
-  const setTheme = useUIStore((s) => s.setTheme);
   const resources = useClusterStore((s) => s.resources);
 
-  // Global keyboard shortcut
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
+      if (e.key === 'Escape' && isOpen) setIsOpen(false);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       setQuery('');
@@ -56,68 +56,80 @@ export function CommandPalette() {
     }
   }, [isOpen]);
 
-  // Build command items
+  // Build items: namespaces first, then navigation, then resources
   const allItems = useMemo((): CommandItem[] => {
-    const items: CommandItem[] = [
+    const items: CommandItem[] = [];
+
+    // Namespaces (deduplicated)
+    const namespaces = new Set<string>();
+    for (const r of resources.values()) {
+      if (r.namespace) namespaces.add(r.namespace);
+    }
+    for (const ns of namespaces) {
+      items.push({
+        id: `ns-${ns}`,
+        category: 'namespace',
+        label: ns,
+        description: 'Filter topology to namespace',
+        icon: '📁',
+        action: () => {
+          dispatchTopoFilter({ namespace: ns });
+          setActiveView('topology');
+        },
+      });
+    }
+
+    // Navigation
+    items.push(
       { id: 'nav-topology', category: 'navigate', label: 'Go to Topology', icon: '◎', action: () => setActiveView('topology') },
       { id: 'nav-logs', category: 'navigate', label: 'Go to Logs', icon: '☰', action: () => setActiveView('logs') },
       { id: 'nav-metrics', category: 'navigate', label: 'Go to Metrics', icon: '▤', action: () => setActiveView('metrics') },
       { id: 'nav-traces', category: 'navigate', label: 'Go to Traces', icon: '⇢', action: () => setActiveView('traces') },
-      { id: 'action-dark', category: 'action', label: 'Set Dark Theme', icon: '🌙', action: () => setTheme('dark') },
-      { id: 'action-light', category: 'action', label: 'Set Light Theme', icon: '☀️', action: () => setTheme('light') },
-      { id: 'action-system', category: 'action', label: 'Set System Theme', icon: '💻', action: () => setTheme('system') },
-    ];
+    );
 
-    const resourceList = Array.from(resources.values()).slice(0, 50);
+    // Resources (top 30)
+    const resourceList = Array.from(resources.values()).slice(0, 30);
     for (const r of resourceList) {
       items.push({
         id: `resource-${r.uid}`,
         category: 'resource',
         label: r.name,
-        description: `${r.kind} ${r.namespace ? `in ${r.namespace}` : ''}`,
-        icon: r.kind === 'Pod' ? 'P' : r.kind === 'Deployment' ? 'D' : r.kind === 'Service' ? 'S' : 'R',
-        action: () => setActiveView('topology'),
+        description: `${r.kind} in ${r.namespace || 'cluster'}`,
+        icon: r.kind === 'Pod' ? 'P' : r.kind === 'Deployment' ? 'D' : r.kind === 'Service' ? 'S' : r.kind === 'Node' ? 'N' : 'R',
+        action: () => {
+          dispatchTopoFilter({ search: r.name });
+          setActiveView('topology');
+        },
       });
     }
 
     return items;
-  }, [resources, setActiveView, setTheme]);
+  }, [resources, setActiveView]);
 
-  // Filter and sort: recent first, then matches
+  // Filter and sort: recent first
   const filteredItems = useMemo(() => {
-    let items: CommandItem[];
     if (!query) {
-      // Show recent at top, then navigation
       const recent = recentCommandIds
         .map((id) => allItems.find((item) => item.id === id))
         .filter(Boolean)
         .map((item) => ({ ...item!, category: 'recent' as const }));
       const rest = allItems.filter((item) => !recentCommandIds.includes(item.id));
-      items = [...recent, ...rest].slice(0, 15);
-    } else {
-      const lower = query.toLowerCase();
-      items = allItems
-        .filter(
-          (item) =>
-            item.label.toLowerCase().includes(lower) ||
-            item.description?.toLowerCase().includes(lower)
-        )
-        .slice(0, 15);
+      return [...recent, ...rest].slice(0, 12);
     }
-    return items;
+    const lower = query.toLowerCase();
+    return allItems
+      .filter((item) => item.label.toLowerCase().includes(lower) || item.description?.toLowerCase().includes(lower))
+      .slice(0, 12);
   }, [allItems, query]);
 
-  // Scroll selected item into view
+  // Scroll selected into view
   useEffect(() => {
     const container = resultsRef.current;
     if (!container) return;
-    const selected = container.children[selectedIndex] as HTMLElement;
-    if (selected) {
-      selected.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
+    const el = container.children[selectedIndex] as HTMLElement;
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [selectedIndex]);
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
@@ -129,11 +141,7 @@ export function CommandPalette() {
       } else if (e.key === 'Enter') {
         e.preventDefault();
         const item = filteredItems[selectedIndex];
-        if (item) {
-          addToRecent(item.id);
-          item.action();
-          setIsOpen(false);
-        }
+        if (item) { addToRecent(item.id); item.action(); setIsOpen(false); }
       }
     },
     [filteredItems, selectedIndex]
@@ -150,11 +158,11 @@ export function CommandPalette() {
             ref={inputRef}
             className="command-palette__input"
             type="text"
-            placeholder="Type a command or search..."
+            placeholder="Search namespaces, resources, actions..."
             value={query}
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
-            aria-label="Command palette search"
+            aria-label="Command palette"
           />
           <kbd className="command-palette__kbd">ESC</kbd>
         </div>
@@ -165,7 +173,6 @@ export function CommandPalette() {
           {filteredItems.map((item, i) => (
             <button
               key={item.id}
-              id={item.id}
               className={`command-palette__item ${i === selectedIndex ? 'command-palette__item--selected' : ''}`}
               onClick={() => { addToRecent(item.id); item.action(); setIsOpen(false); }}
               role="option"

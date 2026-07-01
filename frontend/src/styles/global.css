@@ -330,8 +330,13 @@ button {
   transition: background var(--transition-fast);
 }
 
-.search-bar__result-item:hover {
+.search-bar__result-item:hover,
+.search-bar__result-item--selected {
   background: var(--bg-hover);
+}
+
+.search-bar__result-item--selected {
+  background: var(--accent-primary-dim);
 }
 
 .search-bar__kind {
