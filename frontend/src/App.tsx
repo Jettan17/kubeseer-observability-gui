@@ -7,7 +7,7 @@ import { ServiceMap } from './components/topology/ServiceMap';
 import { LogViewer } from './components/logs/LogViewer';
 import { MetricsDashboard } from './components/metrics/MetricsDashboard';
 import { TraceExplorer, Trace } from './components/traces/TraceExplorer';
-import { ClusterSelector, SearchBar, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
+import { ClusterSelector, CommandPalette, ToastContainer, emitToast, HealthBar } from './components/common';
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { AssistantPanel } from './components/common/AssistantPanel';
@@ -131,11 +131,6 @@ function App() {
     setTopoFilters((prev) => prev.status === status ? {} : { status });
   }, []);
 
-  // Search bar → navigate to resource
-  const handleSearchResultClick = useCallback((resource: ResourceNode) => {
-    setSelectedResource(resource);
-  }, []);
-
   // Compute health summary
   const healthSummary = computeHealthSummary(resources);
 
@@ -150,7 +145,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <CommandPalette onResultClick={handleSearchResultClick} />
+      <CommandPalette onResultClick={setSelectedResource} />
       <ToastContainer />
       {showHelp && <ShortcutsHelp onClose={() => setShowHelp(false)} />}
       {selectedResource && (
@@ -161,16 +156,23 @@ function App() {
       <main className="main-content">
         <header className="main-header">
           <ClusterSelector />
-          <SearchBar onResultClick={handleSearchResultClick} />
-          <button
-            className={`assistant-trigger ${assistantOpen ? 'assistant-trigger--active' : ''}`}
-            onClick={() => setAssistantOpen(!assistantOpen)}
-            title="Troubleshoot assistant (T)"
-            aria-label="Open troubleshoot assistant"
-          >
-            <span>⚡</span>
-            <span className="assistant-trigger__label">Troubleshoot</span>
-          </button>
+          <div className="header-troubleshoot" onClick={() => setAssistantOpen(true)}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="header-troubleshoot__icon">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
+              <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+            <span className="header-troubleshoot__text">Ask about your cluster...</span>
+            <kbd className="header-troubleshoot__kbd">T</kbd>
+          </div>
+          <div className="header-account">
+            <button className="header-account__btn" title="Account settings">
+              <div className="header-account__avatar">JD</div>
+              <span className="header-account__name">Jethro</span>
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </header>
         <div className="view-container">
           {activeView === 'topology' && (
