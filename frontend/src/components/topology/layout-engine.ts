@@ -75,15 +75,49 @@ export function computeLayout(
         namespaceCenters.set(node.namespace, center);
       }
 
+      // Resolve centers
+      const resolvedCenters = new Map<string, { x: number; y: number }>();
+      for (const [ns, c] of namespaceCenters) {
+        resolvedCenters.set(ns, { x: c.x / c.count, y: c.y / c.count });
+      }
+
       // Pull nodes toward their namespace center
       for (const node of nodes) {
         if (!node.namespace || node.x == null || node.y == null) continue;
-        const center = namespaceCenters.get(node.namespace);
-        if (!center || center.count < 2) continue;
-        const cx = center.x / center.count;
-        const cy = center.y / center.count;
-        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.25;
-        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.25;
+        const center = resolvedCenters.get(node.namespace);
+        if (!center) continue;
+        node.vx = (node.vx || 0) + (center.x - node.x) * alpha * 0.15;
+        node.vy = (node.vy || 0) + (center.y - node.y) * alpha * 0.15;
+      }
+
+      // Inter-namespace repulsion: push namespace centers apart
+      const nsList = Array.from(resolvedCenters.entries());
+      for (let i = 0; i < nsList.length; i++) {
+        for (let j = i + 1; j < nsList.length; j++) {
+          const [nsA, cA] = nsList[i];
+          const [nsB, cB] = nsList[j];
+          const dx = cA.x - cB.x;
+          const dy = cA.y - cB.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const minDist = 200; // minimum gap between namespace centers
+
+          if (dist < minDist) {
+            const force = (minDist - dist) / dist * alpha * 0.8;
+            const fx = dx * force;
+            const fy = dy * force;
+
+            // Apply to all nodes in each namespace
+            for (const node of nodes) {
+              if (node.namespace === nsA) {
+                node.vx = (node.vx || 0) + fx;
+                node.vy = (node.vy || 0) + fy;
+              } else if (node.namespace === nsB) {
+                node.vx = (node.vx || 0) - fx;
+                node.vy = (node.vy || 0) - fy;
+              }
+            }
+          }
+        }
       }
     }
 
