@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { StatusBar } from './components/layout/StatusBar';
 import { TopologyView } from './components/topology/TopologyView';
@@ -11,16 +11,14 @@ import { ClusterSelector, SearchBar, HealthBar, ThemeToggle, CommandPalette, Toa
 import { ShortcutsHelp } from './components/common/ShortcutsHelp';
 import { PodDetailDrawer } from './components/common/PodDetailDrawer';
 import { useUIStore } from './stores/ui';
-import { useClusterStore } from './stores/cluster';
+import { useClusterStore, ResourceNode } from './stores/cluster';
 import { useLogStore } from './stores/logs';
-import { useMetricsStore } from './stores/metrics';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import {
   generateMockContexts,
   generateMockResources,
   generateMockLogs,
-  generateMockMetrics,
   generateMockTraces,
 } from './lib/mock-data';
 
@@ -28,10 +26,12 @@ function App() {
   useTheme();
   const { showHelp, setShowHelp } = useKeyboardShortcuts();
   const activeView = useUIStore((s) => s.activeView);
+  const setActiveView = useUIStore((s) => s.setActiveView);
   const resources = useClusterStore((s) => s.resources);
   const activeContext = useClusterStore((s) => s.activeContext);
   const [traces, setTraces] = useState<Trace[]>([]);
-  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [selectedResource, setSelectedResource] = useState<ResourceNode | null>(null);
+  const prevContextRef = useRef<string | null>(null);
 
   // Topology filter state
   const [topoFilters, setTopoFilters] = useState<{
@@ -41,39 +41,31 @@ function App() {
   }>({});
   const [topoMode, setTopoMode] = useState<'resources' | 'services'>('resources');
 
-  // Load initial cluster data
+  // Load data for a cluster
   const loadClusterData = useCallback((clusterName: string) => {
     const clusterStore = useClusterStore.getState();
     const logStore = useLogStore.getState();
-    const metricsStore = useMetricsStore.getState();
 
     // Clear previous data
     clusterStore.clearResources();
     logStore.clear();
-    metricsStore.clearSeries();
 
-    // Simulate brief connection
     clusterStore.setConnectionStatus('connecting');
 
-    // Load new data immediately (Rust backend would be this fast)
     requestAnimationFrame(() => {
       clusterStore.setConnectionStatus('connected');
 
-      // Load resources for this cluster
+      // Load resources — tagged with correct cluster name
       const mockResources = generateMockResources();
-      // Tag resources with the active cluster
       for (const r of mockResources) {
         r.clusterId = clusterName;
         clusterStore.upsertResource(r);
       }
 
-      // Load logs (pre-generated, instant)
+      // Load logs
       logStore.appendLines(generateMockLogs(500));
 
-      // Load metrics
-      metricsStore.setSeries(clusterName, generateMockMetrics());
-
-      // Load traces
+      // Load traces (deterministic per cluster via seed)
       setTraces(generateMockTraces());
     });
   }, []);
@@ -84,42 +76,51 @@ function App() {
     clusterStore.setContexts(generateMockContexts());
     clusterStore.setActiveContext('prod-us-east-1');
     loadClusterData('prod-us-east-1');
+    prevContextRef.current = 'prod-us-east-1';
 
-    // Simulate live log streaming
+    // Live log streaming
     const logInterval = setInterval(() => {
-      const logStore = useLogStore.getState();
-      logStore.appendLines(generateMockLogs(2));
+      useLogStore.getState().appendLines(generateMockLogs(2));
     }, 2500);
 
-    // Simulate real-time events (toasts) — low frequency, deduplicated
+    // Toasts — low frequency
     let toastIdx = 0;
+    const toastEvents = [
+      { severity: 'critical' as const, title: 'Pod CrashLoopBackOff', message: 'payment-service-a7x2k restarted 12 times', resource: 'production/payment-service-a7x2k' },
+      { severity: 'warning' as const, title: 'High Memory', message: 'Node ip-10-0-2-102 at 89% memory utilization', resource: 'ip-10-0-2-102.ec2.internal' },
+      { severity: 'info' as const, title: 'Deployment Scaled', message: 'api-gateway scaled from 2 to 4 replicas', resource: 'production/api-gateway' },
+    ];
     const toastInterval = setInterval(() => {
-      const toastEvents = [
-        { severity: 'critical' as const, title: 'Pod CrashLoopBackOff', message: 'payment-service-a7x2k restarted 12 times', resource: 'production/payment-service-a7x2k' },
-        { severity: 'warning' as const, title: 'High Memory', message: 'Node ip-10-0-2-102 at 89% memory utilization', resource: 'ip-10-0-2-102.ec2.internal' },
-        { severity: 'info' as const, title: 'Deployment Scaled', message: 'api-gateway scaled from 2 to 4 replicas', resource: 'production/api-gateway' },
-      ];
       emitToast(toastEvents[toastIdx % toastEvents.length]);
       toastIdx++;
-    }, 25000); // Every 25 seconds — not overwhelming
+    }, 30000);
 
-    return () => {
-      clearInterval(logInterval);
-      clearInterval(toastInterval);
-    };
+    return () => { clearInterval(logInterval); clearInterval(toastInterval); };
   }, [loadClusterData]);
 
-  // React to cluster switches
+  // React to cluster switches ONLY (not other state changes)
   useEffect(() => {
-    if (activeContext) {
+    if (activeContext && activeContext !== prevContextRef.current) {
+      prevContextRef.current = activeContext;
       loadClusterData(activeContext);
     }
   }, [activeContext, loadClusterData]);
 
-  // Compute health summary from resources
+  // Health bar click → switch to topology and apply filter
+  const handleHealthClick = useCallback((status: string) => {
+    setTopoFilters({ status });
+    setActiveView('topology');
+  }, [setActiveView]);
+
+  // Search bar → navigate to resource
+  const handleSearchResultClick = useCallback((resource: ResourceNode) => {
+    setSelectedResource(resource);
+  }, []);
+
+  // Compute health summary
   const healthSummary = computeHealthSummary(resources);
 
-  // Get namespaces for filter dropdown
+  // Get namespaces
   const namespaces = Array.from(
     new Set(
       Array.from(resources.values())
@@ -140,13 +141,13 @@ function App() {
       <main className="main-content">
         <header className="main-header">
           <ClusterSelector />
-          <SearchBar />
+          <SearchBar onResultClick={handleSearchResultClick} />
           <HealthBar
             healthy={healthSummary.healthy}
             warning={healthSummary.warning}
             critical={healthSummary.critical}
             unknown={healthSummary.unknown}
-            onClick={(status) => setTopoFilters({ status })}
+            onClick={handleHealthClick}
           />
           <ThemeToggle />
         </header>

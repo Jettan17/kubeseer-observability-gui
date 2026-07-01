@@ -1,10 +1,10 @@
 import { useUIStore, ViewType } from '../../stores/ui';
 
-const navItems: { id: ViewType; label: string; icon: string }[] = [
-  { id: 'topology', label: 'Topology', icon: '◎' },
-  { id: 'logs', label: 'Logs', icon: '☰' },
-  { id: 'metrics', label: 'Metrics', icon: '▤' },
-  { id: 'traces', label: 'Traces', icon: '⇢' },
+const navItems: { id: ViewType; label: string; icon: string; shortcut: string }[] = [
+  { id: 'topology', label: 'Topology', icon: '◎', shortcut: '1' },
+  { id: 'logs', label: 'Logs', icon: '☰', shortcut: '2' },
+  { id: 'metrics', label: 'Metrics', icon: '▤', shortcut: '3' },
+  { id: 'traces', label: 'Traces', icon: '⇢', shortcut: '4' },
 ];
 
 export function Sidebar() {
@@ -32,13 +32,41 @@ export function Sidebar() {
             className={`sidebar__item ${activeView === item.id ? 'sidebar__item--active' : ''}`}
             onClick={() => setActiveView(item.id)}
             aria-current={activeView === item.id ? 'page' : undefined}
-            title={item.label}
+            title={`${item.label} (${item.shortcut})`}
           >
             <span className="sidebar__icon">{item.icon}</span>
-            {!collapsed && <span className="sidebar__label">{item.label}</span>}
+            {!collapsed && (
+              <>
+                <span className="sidebar__label">{item.label}</span>
+                <kbd className="sidebar__shortcut">{item.shortcut}</kbd>
+              </>
+            )}
           </button>
         ))}
       </nav>
+      <div className="sidebar__footer">
+        <button
+          className="sidebar__footer-btn"
+          onClick={() => {
+            // Dispatch keyboard event to trigger ? shortcut
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
+          }}
+          title="Keyboard shortcuts (?)"
+        >
+          <span className="sidebar__icon">⌨</span>
+          {!collapsed && <span className="sidebar__label">Shortcuts</span>}
+        </button>
+        <button
+          className="sidebar__footer-btn"
+          onClick={() => {
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+          }}
+          title="Command palette (Ctrl+K)"
+        >
+          <span className="sidebar__icon">⌘</span>
+          {!collapsed && <span className="sidebar__label">Commands</span>}
+        </button>
+      </div>
     </aside>
   );
 }
