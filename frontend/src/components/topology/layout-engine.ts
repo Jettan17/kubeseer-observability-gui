@@ -82,8 +82,8 @@ export function computeLayout(
         if (!center || center.count < 2) continue;
         const cx = center.x / center.count;
         const cy = center.y / center.count;
-        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.1;
-        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.1;
+        node.vx = (node.vx || 0) + (cx - node.x) * alpha * 0.15;
+        node.vy = (node.vy || 0) + (cy - node.y) * alpha * 0.15;
       }
     }
 
@@ -104,7 +104,7 @@ export function computeLayout(
           })
           .strength(0.4)
       )
-      .force('charge', forceManyBody<LayoutNode>().strength((d) => d.namespace ? -400 : -150).distanceMax(500))
+      .force('charge', forceManyBody<LayoutNode>().strength((d) => d.namespace ? -250 : -80).distanceMax(400))
       .force('center', forceCenter(width / 2, height / 2))
       .force(
         'collision',
