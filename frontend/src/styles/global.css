@@ -1779,3 +1779,105 @@ select option {
   color: var(--text-inverse);
   border-color: var(--accent-primary);
 }
+
+
+/* === Deployment Timeline === */
+.deploy-timeline {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.deploy-timeline__title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.deploy-timeline__track {
+  position: relative;
+  padding-left: 20px;
+}
+
+.deploy-timeline__track::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-primary);
+  border-radius: 1px;
+}
+
+.deploy-timeline__event {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.deploy-timeline__dot {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  background: var(--accent-primary);
+  z-index: 1;
+}
+
+.deploy-timeline__event--rollback .deploy-timeline__dot { background: var(--status-critical); }
+.deploy-timeline__event--scale .deploy-timeline__dot { background: var(--status-warning); }
+.deploy-timeline__event--config-change .deploy-timeline__dot { background: var(--accent-secondary); }
+
+.deploy-timeline__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.deploy-timeline__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.deploy-timeline__service {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.deploy-timeline__action {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--accent-primary-dim);
+  color: var(--accent-primary);
+}
+
+.deploy-timeline__action--rollback { background: var(--status-critical-dim); color: var(--status-critical); }
+.deploy-timeline__action--scale { background: var(--status-warning-dim); color: var(--status-warning); }
+.deploy-timeline__action--config-change { background: var(--accent-secondary-dim); color: var(--accent-secondary); }
+
+.deploy-timeline__time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+}
+
+.deploy-timeline__detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}

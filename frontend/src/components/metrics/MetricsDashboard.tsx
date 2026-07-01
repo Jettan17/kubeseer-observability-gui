@@ -3,6 +3,7 @@ import { useMetricsStore, TimeWindow } from '../../stores/metrics';
 import { TimeSeriesChart } from './TimeSeriesChart';
 import { ResourceGauge } from './ResourceGauge';
 import { GoldenSignals } from './GoldenSignals';
+import { DeploymentTimeline } from './DeploymentTimeline';
 import { getMetricsForWindow } from '../../lib/mock-metrics-store';
 
 interface MetricsDashboardProps {
@@ -73,6 +74,7 @@ export function MetricsDashboard({ resourceUid }: MetricsDashboardProps) {
             </div>
           ))}
           </div>
+          <DeploymentTimeline clusterId={resourceUid || 'default'} />
         </>
       )}
     </div>
