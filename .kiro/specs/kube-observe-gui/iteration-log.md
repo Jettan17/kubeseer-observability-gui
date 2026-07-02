@@ -303,6 +303,23 @@ Tracks post-implementation refinements, bug fixes, and UX improvements made afte
 
 ---
 
+### Iteration 18: Header Rework & Navigation Polish
+
+**Trigger:** Header needed clearer action buttons, hotkey discoverability, sidebar cleanup
+
+**Changes:**
+- Replaced single troubleshoot prompt with three pill buttons: Search (/), Troubleshoot (T), Shortcuts (?)
+- All pills: 130px min-width, centered content, hover glow
+- Added C hotkey to open cluster selector dropdown + badge next to it
+- Dropdown component: global Escape listener closes it
+- Moved Shortcuts from sidebar footer to header (removed footer entirely)
+- Account menu: fixed toggle with stopPropagation on mouseDown
+- Shortcuts list reordered: 1, 2, 3, 4, C, /, T, ?, Esc
+
+**Outcome:** All actions discoverable from header with visible hotkey badges, cleaner sidebar
+
+---
+
 ## Final Feature Count
 
 **All Phase 13 features complete:**
