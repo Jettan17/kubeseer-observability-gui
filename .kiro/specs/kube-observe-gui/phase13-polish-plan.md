@@ -2,7 +2,7 @@
 
 ## Overview
 
-Post-MVP polish to elevate from "functional demo" to "awards-worthy product." Prioritized by impact-to-effort ratio, informed by competitive analysis of Lens, Headlamp, Coroot, K8Studio, and Komodor.
+Post-MVP polish to elevate from "functional demo" to "polished product." Prioritized by impact-to-effort ratio, informed by competitive analysis of Lens, Headlamp, Coroot, K8Studio, and Komodor.
 
 ## Priority 1: Instant Perceived Quality
 
