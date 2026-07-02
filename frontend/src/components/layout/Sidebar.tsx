@@ -44,23 +44,6 @@ export function Sidebar() {
           </button>
         ))}
       </nav>
-      <div className="sidebar__footer">
-        <button
-          className="sidebar__footer-btn"
-          onClick={() => {
-            window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
-          }}
-          title="Keyboard shortcuts (?)"
-        >
-          <span className="sidebar__icon">⌨</span>
-          {!collapsed && (
-            <>
-              <span className="sidebar__label">Shortcuts</span>
-              <kbd className="sidebar__shortcut">?</kbd>
-            </>
-          )}
-        </button>
-      </div>
     </aside>
   );
 }

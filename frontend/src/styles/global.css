@@ -2433,7 +2433,9 @@ select:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 14px;
+  padding: 7px 20px;
+  min-width: 130px;
+  justify-content: center;
   background: var(--bg-surface);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
@@ -2463,6 +2465,17 @@ select:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--
   padding: 1px 5px;
   font-family: inherit;
   margin-left: 2px;
+}
+
+.header-pill__kbd--standalone {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: inherit;
 }
 
 .header-spacer {

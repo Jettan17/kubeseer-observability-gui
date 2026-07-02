@@ -26,11 +26,18 @@ export function Dropdown({ options, value, onChange, placeholder, className, 'ar
   // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: MouseEvent) => {
+    const clickHandler = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    const keyHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', clickHandler);
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('mousedown', clickHandler);
+      document.removeEventListener('keydown', keyHandler);
+    };
   }, [isOpen]);
 
   // Scroll highlighted into view

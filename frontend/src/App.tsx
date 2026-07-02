@@ -158,6 +158,7 @@ function App() {
       <main className="main-content">
         <header className="main-header">
           <ClusterSelector />
+          <kbd className="header-pill__kbd header-pill__kbd--standalone">C</kbd>
           <button className="header-pill" onClick={() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' })); }}>
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
               <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
@@ -170,6 +171,11 @@ function App() {
             <span>⚡</span>
             <span>Troubleshoot</span>
             <kbd className="header-pill__kbd">T</kbd>
+          </button>
+          <button className="header-pill" onClick={() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' })); }}>
+            <span>⌨</span>
+            <span>Shortcuts</span>
+            <kbd className="header-pill__kbd">?</kbd>
           </button>
           <div className="header-spacer" />
           <div className="header-account">
