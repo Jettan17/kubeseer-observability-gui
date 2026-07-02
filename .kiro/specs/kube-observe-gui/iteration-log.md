@@ -2,6 +2,28 @@
 
 Tracks post-implementation refinements, bug fixes, and UX improvements made after the initial 12-phase build.
 
+## Table of Contents
+
+| # | Iteration | Category |
+|---|-----------|----------|
+| 1 | Verification & Warning Cleanup | Build |
+| 2 | Wire Up Real Components | Integration |
+| 3 | Premium UI Redesign | UI/UX |
+| 4 | Topology Fixes | Bug Fix |
+| 5 | Trace & Metrics Fixes | Bug Fix |
+| 6 | Dropdown Styling | UI/UX |
+| 7 | Cluster Switch & Log Performance | Performance |
+| 8 | Deterministic Metrics Data | Architecture |
+| 9 | Phase 13 Polish Features | Feature |
+| 10 | UX Feedback Round 1 | Bug Fix |
+| 11 | UX Feedback Round 2 | UI/UX |
+| 12 | UX Feedback Round 3 | UI/UX |
+| 13 | Command Palette → Focused Resource Search | Refactor |
+| 14 | Escape Key & Drawer Animation | Bug Fix |
+| 15 | UI Polish Pass | UI/UX |
+| 16 | Topology Layout Physics Overhaul | Architecture |
+| 17 | Visual Polish & Functional Additions | Feature |
+
 ## Completed Iterations
 
 ### Iteration 1: Verification & Warning Cleanup
