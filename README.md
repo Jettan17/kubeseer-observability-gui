@@ -10,6 +10,16 @@ A high-performance Kubernetes observability GUI built with Rust and React. Singl
 
 KubeSeer unifies topology visualization, log streaming, metrics dashboards, distributed tracing, and automated troubleshooting into a single binary that reads your kubeconfig and opens in your browser.
 
+### Screenshots
+
+![Topology View](assets/01.jpeg)
+![Service Map](assets/02.jpeg)
+![Log Viewer](assets/03.jpeg)
+![Metrics & Golden Signals](assets/04.jpeg)
+![Trace Explorer](assets/05.jpeg)
+![Troubleshoot Assistant](assets/06.jpeg)
+![Pod Detail Drawer](assets/07.jpeg)
+
 **The problem:** DevOps teams cobble together 3-5 tools (kubectl, Grafana, Jaeger, Lens) to understand their clusters. Enterprise alternatives cost $50k+/year. The official K8s Dashboard was archived in 2026.
 
 **Our solution:** One binary. Zero config. All pillars.
@@ -31,17 +41,17 @@ KubeSeer unifies topology visualization, log streaming, metrics dashboards, dist
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│              Single Rust Binary (~50MB)              │
+│              Single Rust Binary (~50MB)             │
 │                                                     │
-│  ┌──────────────────┐  ┌────────────────────────┐  │
-│  │  Axum + Tokio    │  │  Embedded React SPA    │  │
-│  │  HTTP + WebSocket│  │  Canvas + Zustand      │  │
-│  └──────────────────┘  └────────────────────────┘  │
+│  ┌──────────────────┐  ┌────────────────────────┐   │
+│  │  Axum + Tokio    │  │  Embedded React SPA    │   │
+│  │  HTTP + WebSocket│  │  Canvas + Zustand      │   │
+│  └──────────────────┘  └────────────────────────┘   │
 │                                                     │
-│  ┌──────────────────┐  ┌────────────────────────┐  │
-│  │  kube-rs Client  │  │  Resource Graph        │  │
-│  │  Watch Streams   │  │  Broadcast + Diff      │  │
-│  └──────────────────┘  └────────────────────────┘  │
+│  ┌──────────────────┐  ┌────────────────────────┐   │
+│  │  kube-rs Client  │  │  Resource Graph        │   │
+│  │  Watch Streams   │  │  Broadcast + Diff      │   │
+│  └──────────────────┘  └────────────────────────┘   │
 └─────────────────────────────────────────────────────┘
          │                    │                    │
          ▼                    ▼                    ▼
