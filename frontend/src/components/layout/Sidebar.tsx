@@ -60,26 +60,6 @@ export function Sidebar() {
             </>
           )}
         </button>
-        <button
-          className="sidebar__footer-btn"
-          onClick={() => {
-            window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' }));
-          }}
-          title="Search resources (/)"
-        >
-          <span className="sidebar__icon">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{display:'block'}}>
-              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
-              <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-            </svg>
-          </span>
-          {!collapsed && (
-            <>
-              <span className="sidebar__label">Search</span>
-              <kbd className="sidebar__shortcut">/</kbd>
-            </>
-          )}
-        </button>
       </div>
     </aside>
   );

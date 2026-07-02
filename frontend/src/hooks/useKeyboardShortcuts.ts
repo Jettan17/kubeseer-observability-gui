@@ -38,6 +38,11 @@ export function useKeyboardShortcuts() {
         case 'T':
           window.dispatchEvent(new CustomEvent('kubeseer:toggle-assistant'));
           break;
+        case 'c':
+        case 'C':
+          // Focus and open the cluster selector dropdown
+          document.querySelector<HTMLButtonElement>('.dropdown__trigger')?.click();
+          break;
         case '?':
           setShowHelp((prev) => !prev);
           break;
@@ -56,11 +61,12 @@ export function useKeyboardShortcuts() {
 
 export const SHORTCUTS = [
   { keys: ['/'], description: 'Open resource search' },
+  { keys: ['T'], description: 'Toggle troubleshoot assistant' },
+  { keys: ['C'], description: 'Open cluster selector' },
   { keys: ['1'], description: 'Switch to Topology' },
   { keys: ['2'], description: 'Switch to Logs' },
   { keys: ['3'], description: 'Switch to Metrics' },
   { keys: ['4'], description: 'Switch to Traces' },
-  { keys: ['T'], description: 'Toggle troubleshoot assistant' },
   { keys: ['?'], description: 'Toggle shortcuts help' },
   { keys: ['Esc'], description: 'Close overlays' },
 ];

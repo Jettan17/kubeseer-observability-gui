@@ -158,14 +158,20 @@ function App() {
       <main className="main-content">
         <header className="main-header">
           <ClusterSelector />
-          <div className="header-troubleshoot" onClick={() => setAssistantOpen(true)}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="header-troubleshoot__icon">
+          <button className="header-pill" onClick={() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: '/' })); }}>
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
               <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
               <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
-            <span className="header-troubleshoot__text">Ask about your cluster...</span>
-            <kbd className="header-troubleshoot__kbd">T</kbd>
-          </div>
+            <span>Search</span>
+            <kbd className="header-pill__kbd">/</kbd>
+          </button>
+          <button className="header-pill" onClick={() => setAssistantOpen(true)}>
+            <span>⚡</span>
+            <span>Troubleshoot</span>
+            <kbd className="header-pill__kbd">T</kbd>
+          </button>
+          <div className="header-spacer" />
           <div className="header-account">
             <button className="header-account__btn" onMouseDown={(e) => { e.stopPropagation(); setAccountOpen(!accountOpen); }} title="Account settings">
               <div className="header-account__avatar">JD</div>
