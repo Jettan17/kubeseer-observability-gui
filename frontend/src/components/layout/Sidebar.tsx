@@ -48,13 +48,17 @@ export function Sidebar() {
         <button
           className="sidebar__footer-btn"
           onClick={() => {
-            // Dispatch keyboard event to trigger ? shortcut
             window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
           }}
           title="Keyboard shortcuts (?)"
         >
           <span className="sidebar__icon">⌨</span>
-          {!collapsed && <span className="sidebar__label">Shortcuts</span>}
+          {!collapsed && (
+            <>
+              <span className="sidebar__label">Shortcuts</span>
+              <kbd className="sidebar__shortcut">?</kbd>
+            </>
+          )}
         </button>
         <button
           className="sidebar__footer-btn"
@@ -69,7 +73,12 @@ export function Sidebar() {
               <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
           </span>
-          {!collapsed && <span className="sidebar__label">Search</span>}
+          {!collapsed && (
+            <>
+              <span className="sidebar__label">Search</span>
+              <kbd className="sidebar__shortcut">/</kbd>
+            </>
+          )}
         </button>
       </div>
     </aside>
