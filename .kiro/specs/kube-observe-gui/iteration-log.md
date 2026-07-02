@@ -23,6 +23,7 @@ Tracks post-implementation refinements, bug fixes, and UX improvements made afte
 | 15 | UI Polish Pass | UI/UX |
 | 16 | Topology Layout Physics Overhaul | Architecture |
 | 17 | Visual Polish & Functional Additions | Feature |
+| 18 | Header Rework & Navigation Polish | UI/UX |
 
 ## Completed Iterations
 
@@ -325,22 +326,23 @@ Tracks post-implementation refinements, bug fixes, and UX improvements made afte
 **All Phase 13 features complete:**
 1. ✅ Resource search overlay (/ hotkey)
 2. ✅ Toast notifications (30s, repositions for panels)
-3. ✅ Keyboard shortcuts (1-4, /, T, ?, Esc) + help overlay
+3. ✅ Keyboard shortcuts (1-4, C, /, T, ?, Esc) + help overlay
 4. ✅ Pod detail drawer (click node → slide panel → view logs/metrics/traces)
 5. ✅ Golden signals dashboard (latency/traffic/errors/saturation + sparklines)
 6. ✅ Log-to-trace correlation (regex detection, clickable links)
-7. ✅ Namespace swimlanes with inter-namespace repulsion
+7. ✅ Namespace swimlanes with inter-namespace repulsion physics
 8. ✅ Deployment timeline (vertical event timeline)
 9. ✅ Service dependency map (BFS hierarchical L-R layout)
 10. ✅ Troubleshoot assistant (rule-based engine, 7 query patterns, chat UI)
-11. ✅ Account menu (role, RBAC, session, preferences)
+11. ✅ Account menu (role, RBAC, session, preferences, API keys, audit log)
 12. ✅ Custom dropdown component (replaces all native selects)
+13. ✅ Header pill buttons with hotkey badges (Search, Troubleshoot, Shortcuts)
 
 **Test coverage:**
 - Backend: 79 tests (Rust)
 - Frontend: 94 tests (Vitest)
 - Total: 173 tests, 0 failures
-- 0 compiler warnings
+- 0 compiler warnings, 0 clippy issues
 
 **Architecture:**
 - Single Rust binary serves embedded React SPA
@@ -348,3 +350,5 @@ Tracks post-implementation refinements, bug fixes, and UX improvements made afte
 - Mock data generators are the only swap point for real backend
 - All components read from stores, never from generators directly
 - `loadClusterData()` in App.tsx is the integration point for real API calls
+
+**Commits:** 45+ on main

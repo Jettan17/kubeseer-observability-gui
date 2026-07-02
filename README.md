@@ -1,131 +1,122 @@
 # KubeSeer
 
-A high-performance, secure Kubernetes observability GUI built with Rust and React.
+A high-performance Kubernetes observability GUI built with Rust and React. Single binary, zero config, all observability pillars unified.
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Tests](https://img.shields.io/badge/tests-173%20passing-brightgreen)
+![Rust](https://img.shields.io/badge/rust-1.75+-orange)
 
 ## What is KubeSeer?
 
-KubeSeer is an open-source, full-stack Kubernetes observability tool that provides:
+KubeSeer unifies topology visualization, log streaming, metrics dashboards, distributed tracing, and automated troubleshooting into a single binary that reads your kubeconfig and opens in your browser.
 
-- **Visual cluster topology** — interactive graph of nodes, deployments, services, and pods
-- **Real-time log streaming** — click any pod to stream its logs with search and filtering
-- **Metrics dashboard** — CPU, memory, network charts with threshold alerts
-- **Distributed trace explorer** — waterfall diagrams for request tracing across services
-- **Multi-cluster support** — switch between up to 10 clusters seamlessly
+**The problem:** DevOps teams cobble together 3-5 tools (kubectl, Grafana, Jaeger, Lens) to understand their clusters. Enterprise alternatives cost $50k+/year. The official K8s Dashboard was archived in 2026.
 
-All packaged in a single binary with zero external dependencies.
+**Our solution:** One binary. Zero config. All pillars.
 
-## Quick Start
+## Features
 
-```bash
-# Download the latest release for your platform
-# Or build from source:
-cargo build --release
-
-# Run (auto-opens browser)
-./target/release/KubeSeer
-
-# Or specify options
-./target/release/KubeSeer --port 8080 --no-open
-```
-
-KubeSeer reads your `~/.kube/config` automatically. No additional configuration needed.
+| Feature | Description |
+|---------|-------------|
+| **Topology** | Force-directed graph with namespace clustering, inter-namespace repulsion, hierarchy header row. Shapes = kinds, colors = health. |
+| **Service Map** | L-R hierarchical dependency graph (BFS layout) showing traffic flow between services |
+| **Logs** | Virtual scroll (1M+ lines @ 60fps), severity filtering, log-to-trace correlation |
+| **Metrics** | Golden Signals (latency/traffic/errors/saturation) + time-series charts with deployment timeline |
+| **Traces** | Waterfall diagram with span detail, p95 bottleneck detection |
+| **Troubleshoot** | Rule-based engine — ask "why is X crashing?" and it correlates resources, logs, and deploys |
+| **Multi-cluster** | Instant switching with full state isolation per cluster |
+| **Keyboard-first** | `1-4` views, `/` search, `T` troubleshoot, `C` cluster, `?` help |
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│           Single Rust Binary                │
-│                                             │
-│  ┌─────────────┐  ┌─────────────────────┐  │
-│  │ Axum Server │  │ Embedded React SPA  │  │
-│  │ (API + WS)  │  │ (TypeScript/Canvas) │  │
-│  └─────────────┘  └─────────────────────┘  │
-│                                             │
-│  ┌─────────────┐  ┌─────────────────────┐  │
-│  │ kube-rs     │  │ Resource Graph      │  │
-│  │ (K8s API)   │  │ (Watch + Broadcast) │  │
-│  └─────────────┘  └─────────────────────┘  │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│              Single Rust Binary (~50MB)              │
+│                                                     │
+│  ┌──────────────────┐  ┌────────────────────────┐  │
+│  │  Axum + Tokio    │  │  Embedded React SPA    │  │
+│  │  HTTP + WebSocket│  │  Canvas + Zustand      │  │
+│  └──────────────────┘  └────────────────────────┘  │
+│                                                     │
+│  ┌──────────────────┐  ┌────────────────────────┐  │
+│  │  kube-rs Client  │  │  Resource Graph        │  │
+│  │  Watch Streams   │  │  Broadcast + Diff      │  │
+│  └──────────────────┘  └────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+         │                    │                    │
+         ▼                    ▼                    ▼
+   Kubernetes API      Prometheus (opt)    OpenTelemetry (opt)
 ```
 
-**Backend:** Rust with Tokio async runtime, Axum web framework, kube-rs for Kubernetes API  
-**Frontend:** React 18 + TypeScript, Canvas/WebGL rendering, Zustand state management  
-**Security:** Localhost-only by default, TLS required for external access, no credentials on disk
+**Backend:** Rust (Axum, tokio, kube-rs, rustls) — targets <100MB RAM, <5% CPU for 1000 pods  
+**Frontend:** React 18, TypeScript, Canvas rendering, Zustand stores, d3-force layout  
+**Security:** Localhost-only default, TLS required for remote, credentials never on disk
 
-## Features
-
-| Feature | Status |
-|---------|--------|
-| Cluster auto-discovery (kubeconfig) | ✅ |
-| Visual topology with force-directed layout | ✅ |
-| Real-time pod/deployment/service watching | ✅ |
-| Log streaming with search & level filtering | ✅ |
-| Metrics dashboard (Canvas charts) | ✅ |
-| Distributed trace waterfall | ✅ |
-| Multi-cluster switching | ✅ |
-| Health indicators & notifications | ✅ |
-| REST API for programmatic access | ✅ |
-| Dark/light theme | ✅ |
-| WebSocket real-time updates | ✅ |
-| Single binary distribution | ✅ |
-| Prometheus integration | 🔜 |
-| OpenTelemetry/Jaeger integration | 🔜 |
-| Plugin system | 🔜 |
-
-## Security Model
-
-- **Default (localhost):** Binds to 127.0.0.1 only. No auth needed — same trust model as kubectl.
-- **Shared mode:** Requires `--tls` with certificate and key. Supports OIDC authentication.
-- **Credentials:** Never written to disk. Held in memory only for session duration.
-- **RBAC:** Users only see resources their Kubernetes credentials permit.
-
-## Building from Source
-
-### Prerequisites
-
-- Rust 1.75+ (with cargo)
-- Node.js 18+ (with pnpm)
-
-### Build
+## Quick Start
 
 ```bash
-# Install frontend dependencies
+# Build frontend
 cd frontend && pnpm install && pnpm run build && cd ..
 
-# Build the Rust binary (includes embedded frontend)
-cargo build --release
+# Build & run
+cargo run -- --no-open --port 9090
+
+# Open http://127.0.0.1:9090
 ```
 
-### Development
+The app ships with deterministic mock data for demo purposes. Reads `~/.kube/config` automatically when connected to real clusters.
+
+## Technical Highlights
+
+- **Custom physics engine** — d3-force with namespace clustering (intra-group attraction) + inter-namespace repulsion (groups push apart). Hierarchy nodes pinned to header row.
+- **Deterministic mock data** — Seeded PRNG (mulberry32) generates stable 7-day datasets per cluster. Switch clusters and back = identical graphs.
+- **Troubleshoot engine** — 200 lines of TypeScript that parses 7 intent patterns and correlates data across stores. No LLM, no API key, instant response.
+- **Canvas rendering** — Radial gradient nodes (3D sphere effect), bezier curve edges, namespace boundary detection. All at 60fps via requestAnimationFrame.
+- **173 tests** — 79 Rust (unit + integration + property-based) + 94 TypeScript (stores, layout engine, troubleshoot engine, stress tests)
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
 
 ```bash
-# Terminal 1: Backend with hot reload
-cargo watch -x run
+# Run tests
+cargo test                    # Backend (79 tests)
+cd frontend && pnpm test      # Frontend (94 tests)
 
-# Terminal 2: Frontend dev server (proxies API to backend)
-cd frontend && pnpm run dev
+# Development mode
+cargo run                     # Backend serves at random port
+cd frontend && pnpm run dev   # Vite dev server with API proxy
 ```
 
 ## Configuration
 
 | Flag | Env Var | Default | Description |
 |------|---------|---------|-------------|
-| `--host` | `KubeSeer_HOST` | `127.0.0.1` | Bind address |
-| `--port` | `KubeSeer_PORT` | `0` (random) | Bind port |
+| `--host` | `KUBESEER_HOST` | `127.0.0.1` | Bind address |
+| `--port` | `KUBESEER_PORT` | `0` (random) | Bind port |
 | `--kubeconfig` | `KUBECONFIG` | `~/.kube/config` | Kubeconfig path |
-| `--tls` | `KubeSeer_TLS` | `false` | Enable TLS |
-| `--tls-cert` | `KubeSeer_TLS_CERT` | - | TLS cert path |
-| `--tls-key` | `KubeSeer_TLS_KEY` | - | TLS key path |
-| `--session-timeout-hours` | `KubeSeer_SESSION_TIMEOUT` | `8` | Session TTL |
-| `--no-open` | `KubeSeer_NO_OPEN` | `false` | Don't open browser |
-| `--log-level` | `KubeSeer_LOG_LEVEL` | `info` | Log level |
+| `--tls` | `KUBESEER_TLS` | `false` | Enable TLS |
+| `--no-open` | `KUBESEER_NO_OPEN` | `false` | Don't open browser |
+| `--log-level` | `KUBESEER_LOG_LEVEL` | `info` | Log level |
+
+## Project Structure
+
+```
+├── src/                    # Rust backend
+│   ├── api/                # Axum routes (REST + WebSocket)
+│   ├── auth/               # Kubeconfig, sessions, middleware
+│   ├── cluster/            # Connection manager, watchers, resource graph
+│   └── config.rs           # CLI + env config (clap)
+├── frontend/src/           # React frontend
+│   ├── components/         # UI components (topology, logs, metrics, traces)
+│   ├── stores/             # Zustand state (cluster, logs, metrics, ui)
+│   ├── hooks/              # useWebSocket, useKeyboardShortcuts, useTheme
+│   └── lib/                # Troubleshoot engine, mock data, utilities
+├── tests/                  # Rust integration tests
+├── .kiro/specs/            # Requirements, design, tasks, iteration log
+└── Cargo.toml              # Optimized release profile (LTO, strip)
+```
 
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE) for details.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code standards, and PR process.
