@@ -167,7 +167,7 @@ function App() {
             <kbd className="header-troubleshoot__kbd">T</kbd>
           </div>
           <div className="header-account">
-            <button className="header-account__btn" onClick={() => setAccountOpen(!accountOpen)} title="Account settings">
+            <button className="header-account__btn" onMouseDown={(e) => { e.stopPropagation(); setAccountOpen(!accountOpen); }} title="Account settings">
               <div className="header-account__avatar">JD</div>
               <span className="header-account__name">Jethro</span>
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
