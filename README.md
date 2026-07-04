@@ -10,8 +10,6 @@ A high-performance Kubernetes observability GUI built with Rust and React. Singl
 
 KubeSeer unifies topology visualization, log streaming, metrics dashboards, distributed tracing, and automated troubleshooting into a single binary that reads your kubeconfig and opens in your browser.
 
-### Screenshots
-
 ![Topology View](assets/01.jpeg)
 ![Service Map](assets/02.jpeg)
 ![Log Viewer](assets/03.jpeg)
