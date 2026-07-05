@@ -6,6 +6,8 @@ A high-performance Kubernetes observability GUI built with Rust and React. Singl
 ![Tests](https://img.shields.io/badge/tests-173%20passing-brightgreen)
 ![Rust](https://img.shields.io/badge/rust-1.75+-orange)
 
+Live Demo: https://kubeseer.vercel.app/
+
 ## What is KubeSeer?
 
 KubeSeer unifies topology visualization, log streaming, metrics dashboards, distributed tracing, and automated troubleshooting into a single binary that reads your kubeconfig and opens in your browser.
